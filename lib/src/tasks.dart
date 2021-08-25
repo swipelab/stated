@@ -27,14 +27,7 @@ mixin Tasks {
   final _queue = Queue<_Task<void>>();
 
   /// Enqueues [task] for execution and return the completion future
-  Future<void> enqueue(TaskDelegate task) {
-    final completer = _Task<void>(task);
-    _queue.add(completer);
-    _dequeue();
-    return completer.future;
-  }
-
-  Future<T?> enqueueReturn<T>(TypedTaskDelegate<T> task) {
+  FutureOr<T?> enqueue<T>(TaskDelegate task) {
     final completer = _Task<T>(task);
     _queue.add(completer);
     _dequeue();

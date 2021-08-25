@@ -19,4 +19,11 @@ abstract class Bloc<T> extends ChangeNotifier
 
   @protected  
   T build();
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    closeTasks();
+    super.dispose();
+  }
 }
