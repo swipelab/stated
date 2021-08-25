@@ -31,7 +31,7 @@ class CounterBloc extends Bloc<CounterState> {
 
 /// Counter presenter
 class CounterWidget extends StatelessWidget {
-    CounterWidget({this.state});
+    CounterWidget(this.state);
     final CounterState state;
 
     @override
@@ -40,6 +40,22 @@ class CounterWidget extends StatelessWidget {
             onTap: state.increment,
             child:  Text('Counter: ${state.counter}'),
         );
+}
+
+/// Usage
+class MyApp extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+        return MaterialApp(
+            title: 'Stated',
+            home: Scaffold(
+                body: BlocBuilder<CounterState>(
+                    create: (context) => CounterBloc(),
+                    builder: (context, state, _) => CounterWidget(state),
+                )
+            )
+        )
+    }
 }
 
 ```

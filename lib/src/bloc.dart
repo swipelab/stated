@@ -7,10 +7,9 @@ abstract class Bloc<T> extends ChangeNotifier
   
   @protected
   @nonVirtual
-  void setState(VoidCallback callback) {
-    callback();
-
-    _value = build();
+  void setState([VoidCallback? callback]) {
+    callback?.call();
+    _value = null;
     notifyListeners();
   }
 
