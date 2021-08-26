@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
+
 typedef TaskDelegate = Future<void> Function();
 
 typedef TypedTaskDelegate<T> = Future<T> Function();
@@ -76,5 +78,19 @@ mixin Tasks {
 
   void closeTasks() {
     _isClosed = true;
+  }
+
+  static VoidCallback scheduled(VoidCallback callback) {
+    var targetVersion = 0;
+    var currentVersion = 0;
+    return () {
+      if (targetVersion == currentVersion) {
+        targetVersion++;
+        scheduleMicrotask(() {
+          targetVersion = ++currentVersion;
+          callback();
+        });
+      }
+    };
   }
 }
