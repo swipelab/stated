@@ -1,5 +1,5 @@
-## 0.0.7
-* scheduled Bloc.update
+## 0.0.8
+* scheduled Bloc.notifyListeners
 ## 0.0.5
 * Added Bloc.dispose  
 ## 0.0.3
