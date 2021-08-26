@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'tasks.dart';
 import 'bloc.dart';
 
 class BlocBuilder<T> extends StatefulWidget {
@@ -27,6 +28,11 @@ class BlocBuilder<T> extends StatefulWidget {
 
 class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
   late Bloc<T> bloc;
+  late VoidCallback _handleUpdate;
+
+  _BlocBuilderState(){
+    _handleUpdate = Tasks.scheduled(()=> setState((){}));
+  }
 
   @override
   void initState() {
@@ -55,10 +61,6 @@ class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
     bloc
       ..removeListener(_handleUpdate)
       ..dispose();
-  }
-
-  void _handleUpdate() {
-    setState(() {});
   }
 
   @override
