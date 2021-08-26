@@ -1,4 +1,4 @@
-## 0.0.6
+## 0.0.7
 * scheduled Bloc.update
 ## 0.0.5
 * Added Bloc.dispose  
