@@ -1,6 +1,6 @@
 # stated
 
-Final state
+final state
 
 # example
 
