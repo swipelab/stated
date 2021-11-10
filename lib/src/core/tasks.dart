@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'dart:collection';
 
-import 'package:app/core/core.dart';
 import 'package:flutter/foundation.dart';
+
+import 'core.dart';
 
 typedef TaskDelegate = Future<void> Function();
 
