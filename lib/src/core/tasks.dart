@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'dart:collection';
 
+import 'package:app/core/core.dart';
 import 'package:flutter/foundation.dart';
 
 typedef TaskDelegate = Future<void> Function();
@@ -25,11 +27,12 @@ class _Task<T> {
   Future<T?> get future => _completer.future;
 }
 
-mixin Tasks {
+mixin Tasks on Disposer {
   final _queue = Queue<_Task<void>>();
 
   /// Enqueues [task] for execution and return the completion future
   Future<void> enqueue(TaskDelegate task) {
+    _ensureInit();
     final completer = _Task<void>(task);
     _queue.add(completer);
     _dequeue();
@@ -42,9 +45,19 @@ mixin Tasks {
     return completer.future;
   }
 
+  void _ensureInit() {
+    if (_isInit) {
+      return;
+    }
+    _isInit = true;
+    addDispose(_disposeTasks);
+  }
+
+  bool _isInit = false;
   bool _isClosed = false;
   int _runningTasks = 0;
   final int _maxConcurrentTasks = 1;
+
   int get runningTasks => _runningTasks;
 
   Future<void> _dequeue() async {
@@ -64,7 +77,6 @@ mixin Tasks {
         } else {
           task.complete();
         }
-        // ignore: avoid_catches_without_on_clauses
       } catch (e) {
         task.completeError(e);
       }
@@ -76,7 +88,7 @@ mixin Tasks {
     }
   }
 
-  void closeTasks() {
+  void _disposeTasks() {
     _isClosed = true;
   }
 

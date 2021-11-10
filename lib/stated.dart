@@ -1,5 +1,5 @@
 library stated;
 
-export 'src/bloc.dart';
-export 'src/bloc_builder.dart';
-export 'src/tasks.dart';
+export 'src/core/core.dart';
+export 'src/bloc/bloc.dart';
+export 'src/bloc/bloc_builder.dart';

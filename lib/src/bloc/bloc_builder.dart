@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
-
-import 'bloc.dart';
+import 'package:stated/src/bloc/bloc.dart';
 
 class BlocBuilder<T> extends StatefulWidget {
   const BlocBuilder({

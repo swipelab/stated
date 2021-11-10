@@ -1,0 +1,33 @@
+import 'package:provider/single_child_widget.dart';
+import 'package:stated/src/core/core.dart';
+import 'package:stated/src/core/store/factory/legacy_provider.dart';
+
+class LazyStoreFactory<T> implements StoreFactory<T> {
+  LazyStoreFactory({
+    required this.resolver,
+    required this.delegate,
+  });
+
+  final ResolverCreateDelegate<T> delegate;
+  final Resolver resolver;
+  T? _instance;
+
+  Future<T> get future async {
+    if (_instance == null) {
+      final instance = await delegate(resolver);
+      if (instance is AsyncInit) {
+        await instance.init();
+      }
+      _instance = instance;
+    }
+    return _instance!;
+  }
+
+  @override
+  T get instance => _instance == null
+      ? throw Exception('Service not initialized: $T')
+      : _instance!;
+
+  @override
+  SingleChildWidget get provider => legacyValueProvider(instance);
+}
