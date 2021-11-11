@@ -15,7 +15,7 @@ mixin Notifier on Disposer implements Listenable {
 
   @protected
   @nonVirtual
-  void notify([VoidCallback? callback]) {
+  void notifyListeners([VoidCallback? callback]) {
     callback?.call();
     _notify();
   }
@@ -54,7 +54,6 @@ mixin Notifier on Disposer implements Listenable {
     _listeners?.remove(listener);
   }
 
-  @protected
   void _notifyListeners() {
     assert(_debugAssertNotDisposed());
     if (_listeners!.isEmpty) return;
@@ -71,10 +70,7 @@ mixin Notifier on Disposer implements Listenable {
   bool _debugAssertNotDisposed() {
     assert(() {
       if (_listeners == null) {
-        throw Exception(
-          'A $runtimeType was used after being disposed.\n'
-          'Once you have called _disposeNotifier() on a $runtimeType, it can no longer be used.',
-        );
+        throw Exception('A $runtimeType was used after being disposed.\n');
       }
       return true;
     }());

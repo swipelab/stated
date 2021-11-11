@@ -7,7 +7,7 @@ abstract class Bloc<T> extends Observable implements ValueListenable<T> {
   void setState([VoidCallback? callback]) {
     callback?.call();
     _value = null;
-    notify();
+    notifyListeners();
   }
 
   T? _value;
