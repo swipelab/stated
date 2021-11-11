@@ -27,6 +27,8 @@ abstract class StoreFactory<T> {
 
   /// Enables [Locator] usage
   T get instance;
+
+  R pipeInstance<R>(R Function<T>(T instance) fn);
 }
 
 mixin Register on Resolver, Locator {

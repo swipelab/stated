@@ -25,4 +25,7 @@ class LazyStoreFactory<T> implements StoreFactory<T> {
   T get instance => _instance == null
       ? throw Exception('Service not initialized: $T')
       : _instance!;
+
+  @override
+  R pipeInstance<R>(R Function<T>(T instance) fn) => (fn as dynamic)<T>(instance);
 }

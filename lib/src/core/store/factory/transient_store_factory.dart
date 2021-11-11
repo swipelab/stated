@@ -15,4 +15,8 @@ class TransientStoreFactory<T>
 
   @override
   T get instance => delegate(locator);
+
+  @override
+  R pipeInstance<R>(R Function<T>(T instance) fn) =>
+      (fn as dynamic)<T>(instance);
 }

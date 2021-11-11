@@ -9,4 +9,7 @@ class InstanceStoreFactory<T> implements StoreFactory<T> {
 
   @override
   T get instance => _value;
+
+  @override
+  R pipeInstance<R>(R Function<T>(T instance) fn) => (fn as dynamic)<T>(instance);
 }
