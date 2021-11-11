@@ -28,7 +28,8 @@ abstract class StoreFactory<T> {
   /// Enables [Locator] usage
   T get instance;
 
-  R pipeInstance<R>(R Function<T>(T instance) fn);
+  /// A little workaround to retain T on the caller side
+  R pipeInstance<R>(R Function<T>(T instance) fn) => fn<T>(instance);
 }
 
 mixin Register on Resolver, Locator {

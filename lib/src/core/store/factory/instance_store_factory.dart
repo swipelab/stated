@@ -1,6 +1,6 @@
 import 'package:stated/src/core/core.dart';
 
-class InstanceStoreFactory<T> implements StoreFactory<T> {
+class InstanceStoreFactory<T> extends StoreFactory<T> {
   InstanceStoreFactory(T value) : _value = value;
 
   final T _value;
@@ -9,7 +9,4 @@ class InstanceStoreFactory<T> implements StoreFactory<T> {
 
   @override
   T get instance => _value;
-
-  @override
-  R pipeInstance<R>(R Function<T>(T instance) fn) => (fn as dynamic)<T>(instance);
 }
