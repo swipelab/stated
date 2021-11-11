@@ -1,3 +1,4 @@
+import 'package:stated/src/core/store/factory/store_factory.dart';
 import 'package:stated/src/core/store/factory/instance_store_factory.dart';
 import 'package:stated/src/core/store/factory/lazy_store_factory.dart';
 import 'package:stated/src/core/store/factory/transient_store_factory.dart';
@@ -14,22 +15,6 @@ mixin Locator {
 /// Async locator (mainly to enable lazy async)
 mixin Resolver {
   Future<T> resolve<T>();
-}
-
-/// Decorator for [StoreFactory]
-/// It will emit a new instance each time it's requested
-/// Note: This is not an enforcement, only a hint
-mixin TransientFactory {}
-
-abstract class StoreFactory<T> {
-  /// Enables [Resolves] usage
-  Future<T> get future;
-
-  /// Enables [Locator] usage
-  T get instance;
-
-  /// A little workaround to retain T on the caller side
-  R pipeInstance<R>(R Function<T>(T instance) fn) => fn<T>(instance);
 }
 
 mixin Register on Resolver, Locator {
@@ -55,12 +40,11 @@ mixin Register on Resolver, Locator {
             delegate: delegate,
           ));
 
-  void addTransient<T>(LocatorCreateDelegate<T> delegate) {
-    addTransient((e) => TransientStoreFactory(
-          locator: this,
-          delegate: delegate,
-        ));
-  }
+  void addTransient<T>(LocatorCreateDelegate<T> delegate) =>
+      addFactory((e) => TransientStoreFactory<T>(
+            locator: this,
+            delegate: delegate,
+          ));
 }
 
 class Store with Locator, Resolver, Register {

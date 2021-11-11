@@ -9,7 +9,6 @@ class BlocBuilder<T> extends StatefulWidget {
     this.child,
   }) : super(key: key);
 
-
   final Bloc<T> Function(BuildContext context) create;
 
   final Widget Function(
