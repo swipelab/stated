@@ -1,6 +1,4 @@
-import 'package:provider/single_child_widget.dart';
 import 'package:stated/src/core/core.dart';
-import 'package:stated/src/core/store/factory/legacy_provider.dart';
 
 class LazyStoreFactory<T> implements StoreFactory<T> {
   LazyStoreFactory({
@@ -27,7 +25,4 @@ class LazyStoreFactory<T> implements StoreFactory<T> {
   T get instance => _instance == null
       ? throw Exception('Service not initialized: $T')
       : _instance!;
-
-  @override
-  SingleChildWidget get provider => legacyValueProvider(instance);
 }

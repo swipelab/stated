@@ -1,18 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 import 'package:stated/src/core/store/factory/instance_store_factory.dart';
-import 'package:stated/src/core/store/factory/lazy_listenable_store_factory.dart';
 import 'package:stated/src/core/store/factory/lazy_store_factory.dart';
 import 'package:stated/src/core/store/factory/transient_store_factory.dart';
 
 typedef LocatorCreateDelegate<T> = T Function(Locator e);
 typedef ResolverCreateDelegate<T> = Future<T> Function(Resolver e);
 typedef FactoryDelegate<T> = StoreFactory<T> Function(Resolver e);
-
-typedef LegacyValueProvider<T> = SingleChildWidget Function(T instance);
-typedef LegacyListenableProvider<T extends Listenable> = SingleChildWidget
-    Function(T instance);
 
 /// Sync locator
 mixin Locator {
@@ -35,11 +27,6 @@ abstract class StoreFactory<T> {
 
   /// Enables [Locator] usage
   T get instance;
-
-  /// Support for [Provider]
-  /// Note: It needs to have access to the generic type [T] for correct registration
-  /// TODO: figure out a way to extract this at caller level
-  SingleChildWidget get provider;
 }
 
 mixin Register on Resolver, Locator {
@@ -53,9 +40,6 @@ mixin Register on Resolver, Locator {
         .map((e) => e.future));
   }
 
-  List<SingleChildWidget> get legacyProviders =>
-      registry.entries.map((e) => e.value.provider).toList();
-
   void add<T>(T instance) {
     addFactory((e) => InstanceStoreFactory(instance));
   }
@@ -68,13 +52,6 @@ mixin Register on Resolver, Locator {
             delegate: delegate,
           ));
 
-  void addListenable<T extends Listenable>(ResolverCreateDelegate<T> delegate) {
-    addFactory((e) => LazyListenableStoreFactory(
-          resolver: this,
-          delegate: delegate,
-        ));
-  }
-
   void addTransient<T>(LocatorCreateDelegate<T> delegate) {
     addTransient((e) => TransientStoreFactory(
           locator: this,
@@ -84,8 +61,6 @@ mixin Register on Resolver, Locator {
 }
 
 class Store with Locator, Resolver, Register {
-  Store();
-
   @override
   Future<T> resolve<T>() {
     final entry = registry[T];

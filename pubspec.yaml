@@ -1,6 +1,6 @@
 name: stated
 description: final state
-version: 1.0.1
+version: 1.0.2
 homepage: https://swipelab.co/
 repository: https://github.com/swipelab/stated
 
@@ -11,8 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-# figure out a way to remove it
-  provider: ^6.0.1
 
 dev_dependencies:
   flutter_test:
