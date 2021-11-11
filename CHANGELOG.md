@@ -1,8 +1,4 @@
-# 1.0.3
-* fixed transient
-# 1.0.2
-* dropped provider
-# 1.0.1
+# 1.0.4
 * Added core components (wip)
 ## 0.0.8
 * scheduled Bloc.notifyListeners
