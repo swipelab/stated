@@ -1,4 +1,4 @@
-# 1.0.5
+# 1.0.6
 * Added core components (wip)
 ## 0.0.8
 * scheduled Bloc.notifyListeners
