@@ -29,7 +29,7 @@ class _Task<T> {
 }
 
 mixin Tasks on Disposer {
-  final _queue = Queue<_Task<void>>();
+  final _queue = <_Task<void>>[];
 
   /// Enqueues [task] for execution and return the completion future
   Future<void> enqueue(TaskDelegate task) {
@@ -43,6 +43,7 @@ mixin Tasks on Disposer {
   Future<void> waitIdle() {
     final completer = _Task<void>(() async {});
     _queue.add(completer);
+    _dequeue();
     return completer.future;
   }
 
@@ -62,15 +63,13 @@ mixin Tasks on Disposer {
   int get runningTasks => _runningTasks;
 
   Future<void> _dequeue() async {
-    if (_isClosed || _runningTasks == _maxConcurrentTasks || _queue.isEmpty) {
+    if (_isClosed || _runningTasks >= _maxConcurrentTasks || _queue.isEmpty) {
       return;
     }
+    _runningTasks++;
 
-    while (!_isClosed &&
-        _queue.isNotEmpty &&
-        _runningTasks < _maxConcurrentTasks) {
-      _runningTasks++;
-      final task = _queue.removeFirst();
+    while (!_isClosed && _queue.isNotEmpty) {
+      final task = _queue.removeAt(0);
       try {
         await task.run();
         if (_isClosed) {
@@ -81,12 +80,13 @@ mixin Tasks on Disposer {
       } catch (e) {
         task.completeError(e);
       }
-      _runningTasks--;
     }
 
     while (_isClosed && _queue.isNotEmpty) {
-      _queue.removeFirst().completeError(TaskCancelledException());
+      _queue.removeAt(0).completeError(TaskCancelledException());
     }
+
+    _runningTasks--;
   }
 
   void _disposeTasks() {
