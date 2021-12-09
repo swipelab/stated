@@ -9,3 +9,4 @@ export 'async.dart';
 export 'disposer.dart';
 export 'observable.dart';
 export 'store/store.dart';
+export 'observable_collection.dart';
