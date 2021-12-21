@@ -29,30 +29,7 @@ class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
   @override
   void initState() {
     super.initState();
-
-    bloc = _initBloc();
-  }
-
-  @override
-  void didUpdateWidget(BlocBuilder<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.create != widget.create ||
-        oldWidget.builder != widget.builder ||
-        oldWidget.child != widget.child) {
-      _disposeBloc();
-      bloc = _initBloc();
-    }
-  }
-
-  Bloc<T> _initBloc() {
-    return widget.create(context)..addListener(_handleUpdate);
-  }
-
-  void _disposeBloc() {
-    bloc
-      ..removeListener(_handleUpdate)
-      ..dispose();
+    bloc = widget.create(context)..addListener(_handleUpdate);
   }
 
   void _handleUpdate() {
@@ -61,7 +38,9 @@ class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
 
   @override
   void dispose() {
-    _disposeBloc();
+    bloc
+      ..removeListener(_handleUpdate)
+      ..dispose();
     super.dispose();
   }
 
