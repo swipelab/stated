@@ -1,4 +1,4 @@
-# 1.0.11
+# 1.0.12
 * Added core components (wip)
 * BlocBuilder no longer re-creates bloc
 ## 0.0.8
