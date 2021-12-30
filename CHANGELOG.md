@@ -1,6 +1,7 @@
-# 1.0.12
+# 1.0.13
 * Added core components (wip)
 * BlocBuilder no longer re-creates bloc
+* Added ObservableBuilder
 ## 0.0.8
 * scheduled Bloc.notifyListeners
 ## 0.0.5
