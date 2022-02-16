@@ -17,7 +17,7 @@ class CounterState {
 }
 
 /// Counter logic
-class CounterBloc extends Bloc<CounterState> {
+class CounterBloc extends Stated<CounterState> {
   int _counter = 0;
 
   @override
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Stated',
-      home: BlocBuilder<CounterState>(
+      home: StatedBuilder<CounterState>(
         create: (context) => CounterBloc(),
         builder: (context, state, _) => Scaffold(
           appBar: AppBar(

@@ -1,6 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:stated/stated.dart';
 
+typedef ObservableBuilderCtor<T extends Observable> = T Function(
+  BuildContext context,
+);
+typedef ObservableBuilderDelegate<T extends Observable> = Widget Function(
+  BuildContext context,
+  T state,
+  Widget? child,
+);
+
 class ObservableBuilder<T extends Observable> extends StatefulWidget {
   const ObservableBuilder({
     Key? key,
@@ -9,13 +18,9 @@ class ObservableBuilder<T extends Observable> extends StatefulWidget {
     this.child,
   }) : super(key: key);
 
-  final T Function(BuildContext context) create;
+  final ObservableBuilderCtor<T> create;
 
-  final Widget Function(
-    BuildContext context,
-    T state,
-    Widget? child,
-  ) builder;
+  final ObservableBuilderDelegate<T> builder;
 
   final Widget? child;
 
@@ -30,17 +35,15 @@ class _ObservableBuilderState<T extends Observable>
   @override
   void initState() {
     super.initState();
-    listenable = widget.create(context)..addListener(_handleUpdate);
+    listenable = widget.create(context)..addListener(_notify);
   }
 
-  void _handleUpdate() {
-    setState(() {});
-  }
+  void _notify() => setState(() {});
 
   @override
   void dispose() {
     listenable
-      ..removeListener(_handleUpdate)
+      ..removeListener(_notify)
       ..dispose();
     super.dispose();
   }

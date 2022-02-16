@@ -1,6 +1,6 @@
 library stated;
 
+export 'src/bloc/future_stated_builder.dart';
+export 'src/bloc/stated.dart';
+export 'src/bloc/stated_builder.dart';
 export 'src/core/core.dart';
-export 'src/bloc/bloc.dart';
-export 'src/bloc/bloc_builder.dart';
-export 'src/bloc/future_bloc_builder.dart';

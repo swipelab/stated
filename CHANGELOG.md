@@ -1,3 +1,7 @@
+# 1.1.0
+Renamed BlocBuilder -> StatedBuilder
+Renamed Bloc -> Stated
+Renamed FutureBlocBuilder -> FutureStatedBuilder
 # 1.0.13
 * Added core components (wip)
 * BlocBuilder no longer re-creates bloc
