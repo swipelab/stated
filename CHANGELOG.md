@@ -1,7 +1,8 @@
-# 1.1.1
+# 1.1.2
 * Renamed BlocBuilder -> StatedBuilder
 * Renamed Bloc -> Stated
 * Renamed FutureBlocBuilder -> FutureStatedBuilder
+* Exported ObservableBuilder
 # 1.0.13
 * Added core components (wip)
 * BlocBuilder no longer re-creates bloc
