@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:stated/stated.dart';
 
-
 typedef ObserverBuilder<T extends Observable> = Widget Function(
   BuildContext context,
   T observable,
@@ -23,12 +22,10 @@ class Observer<T extends Observable> extends StatefulWidget {
   final Widget? child;
 
   @override
-  _ObservableBuilderState<T> createState() => _ObservableBuilderState<T>();
+  _ObserverState<T> createState() => _ObserverState<T>();
 }
 
-class _ObservableBuilderState<T extends Observable>
-    extends State<ObservableBuilder<T>> {
-
+class _ObserverState<T extends Observable> extends State<Observer<T>> {
   @override
   void initState() {
     super.initState();
@@ -37,7 +34,8 @@ class _ObservableBuilderState<T extends Observable>
 
   @override
   void didUpdateWidget(covariant Observer<T> oldWidget) {
-    if(oldWidget.observable != widget.observable) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.observable != widget.observable) {
       oldWidget.observable.removeListener(_notify);
       widget.observable.addListener(_notify);
     }
