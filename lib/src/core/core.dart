@@ -7,6 +7,7 @@ export 'notifier.dart';
 export 'observable.dart';
 export 'observable_builder.dart';
 export 'observable_list.dart';
+export 'observer.dart';
 export 'serializer.dart';
 export 'store/store.dart';
 // export 'storage.dart';
