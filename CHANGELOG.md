@@ -1,3 +1,5 @@
+# 1.1.4+1
+* Improved docs
 # 1.1.4
 * Added Observer (similar to AnimatedBuilder)
 * Renamed BlocBuilder -> StatedBuilder

@@ -5,6 +5,7 @@ import 'core.dart';
 
 /// UI friendly implementation of Listenable
 /// ChangeNotifier notifies listeners a bit too eagerly
+/// Ensures that Listeners will not be notified more than once using [notifyListeners] per frame
 mixin Notifier on Disposer implements Listenable {
   VoidCallback? __notify;
 

@@ -7,6 +7,15 @@ typedef ObserverBuilder<T extends Observable> = Widget Function(
   Widget? child,
 );
 
+/// A similar construct like Flutter's [AnimationBuilder] that also
+/// provides the [observable] via the [builder] delegate.
+/// This can be useful when a complex expression is needed
+/// to resolve the [observable].
+/// Eg:
+/// Observer(
+///   observable: context.read<SomeObservable>(),
+///   builder: (context, observable, child) => Widget(observable),
+/// )
 class Observer<T extends Observable> extends StatefulWidget {
   const Observer({
     Key? key,
