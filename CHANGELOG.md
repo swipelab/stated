@@ -1,5 +1,6 @@
-# 1.1.4+1
+# 1.1.4+2
 * Improved docs
+* Relaxed the Observer constraints, now accepting Listenable
 # 1.1.4
 * Added Observer (similar to AnimatedBuilder)
 * Renamed BlocBuilder -> StatedBuilder

@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/stated.dart';
 
-typedef ObserverBuilder<T extends Observable> = Widget Function(
+typedef ObserverBuilder<T extends Listenable> = Widget Function(
   BuildContext context,
   T observable,
   Widget? child,
@@ -16,7 +15,7 @@ typedef ObserverBuilder<T extends Observable> = Widget Function(
 ///   observable: context.read<SomeObservable>(),
 ///   builder: (context, observable, child) => Widget(observable),
 /// )
-class Observer<T extends Observable> extends StatefulWidget {
+class Observer<T extends Listenable> extends StatefulWidget {
   const Observer({
     Key? key,
     required this.observable,
@@ -34,7 +33,7 @@ class Observer<T extends Observable> extends StatefulWidget {
   _ObserverState<T> createState() => _ObserverState<T>();
 }
 
-class _ObserverState<T extends Observable> extends State<Observer<T>> {
+class _ObserverState<T extends Listenable> extends State<Observer<T>> {
   @override
   void initState() {
     super.initState();
