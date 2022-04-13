@@ -15,7 +15,7 @@ mixin Notifier on Disposer implements Listenable {
   bool _isInit = false;
 
   @protected
-  @nonVirtual
+  @mustCallSuper
   void notifyListeners([VoidCallback? callback]) {
     callback?.call();
     _notify();
