@@ -24,7 +24,7 @@ class CounterBloc extends Stated<CounterState> {
   CounterState build() => CounterState(
         counter: _counter,
         increment: () {
-          setState(() => _counter++);
+          notifyListeners(() => _counter++);
         },
       );
 }

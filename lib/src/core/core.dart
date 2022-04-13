@@ -5,7 +5,7 @@ export 'extension/listenable.dart';
 export 'extension/void_callback.dart';
 export 'notifier.dart';
 export 'observable.dart';
-export 'observable_builder.dart';
+export 'listenable_builder.dart';
 export 'observable_list.dart';
 export 'observer.dart';
 export 'serializer.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:stated/src/core/core.dart';
 
+///
 abstract class Stated<T> with Disposer, Notifier implements ValueListenable<T> {
   @protected
   @nonVirtual
