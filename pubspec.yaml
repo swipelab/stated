@@ -1,6 +1,8 @@
 name: stated
-description: final state
-version: 1.1.4+2
+description: A neat set of tools aimed at simplyfind the state management. Stated<T>, Store, ObservableList,
+
+
+version: 1.2.0
 homepage: https://swipelab.co/
 repository: https://github.com/swipelab/stated
 

@@ -8,6 +8,7 @@ extension BoolExtension on bool? {
       case null:
         return null;
     }
+    return null;
   }
 }
 

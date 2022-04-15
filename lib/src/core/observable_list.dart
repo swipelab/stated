@@ -5,7 +5,7 @@ import 'package:stated/src/core/core.dart';
 class ObservableList<T> with Disposer, Notifier implements List<T> {
   List<T> _list;
 
-  ObservableList([Iterable<T>? items]) : _list = List<T>.from(items ?? [] as Iterable<T>);
+  ObservableList([Iterable<T>? items]) : _list = List.from(items ?? <T>[]);
 
   @override
   T get first => _list.first;

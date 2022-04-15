@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'core.dart';
+
+typedef NotifierCallback = FutureOr<void> Function();
 
 /// UI friendly implementation of Listenable
 /// ChangeNotifier notifies listeners a bit too eagerly
@@ -15,9 +19,9 @@ mixin Notifier on Disposer implements Listenable {
   bool _isInit = false;
 
   @protected
-  @nonVirtual
-  void notifyListeners([VoidCallback? callback]) {
-    callback?.call();
+  @mustCallSuper
+  void notifyListeners([NotifierCallback? callback]) async {
+    await callback?.call();
     _notify();
   }
 
