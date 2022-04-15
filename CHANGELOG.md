@@ -1,6 +1,7 @@
-# 1.2.1
+# 1.2.2
 * Relaxed contract
 * Improved docs
+* Replaced Observer with ListenableBuilder
 # 1.1.4+2
 * Improved docs
 * Relaxed the Observer constraints, now accepting Listenable
