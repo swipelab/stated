@@ -1,4 +1,4 @@
-# 1.2.0
+# 1.2.1
 * Relaxed contract
 * Improved docs
 # 1.1.4+2

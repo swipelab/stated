@@ -7,8 +7,11 @@ import 'package:stated/src/stated/stated_builder.dart';
 /// The [value] is never assigned directly, but rather built using with [build]
 abstract class Stated<T> with Disposer, Notifier implements ValueListenable<T> {
   Stated({
+    T? initialState,
     bool withHistory = false,
-  }) : _withHistory = withHistory;
+  }) : _withHistory = withHistory {
+    _value = _nextValue(initialState);
+  }
 
   /// Enables history for produced values with [build]
   final bool _withHistory;
@@ -19,13 +22,13 @@ abstract class Stated<T> with Disposer, Notifier implements ValueListenable<T> {
   @override
   void notifyListeners([NotifierCallback? callback]) async {
     await callback?.call();
-    _value = _build();
+    _value = _nextValue();
     super.notifyListeners();
   }
 
   T? _value;
 
-  T get value => _value ??= _build();
+  T get value => _value ??= _nextValue();
 
   /// This methods needs to be overridden to produce [value]
   @protected
@@ -33,10 +36,10 @@ abstract class Stated<T> with Disposer, Notifier implements ValueListenable<T> {
 
   /// Builds the [value] and keeps track of all produced [value]s.
   /// This can help with testing.
-  T _build() {
-    final newState = _build();
-    if (_withHistory) history.add(newState);
-    return newState;
+  T _nextValue([T? value]) {
+    final nextValue = value ?? build();
+    if (_withHistory) history.add(nextValue);
+    return nextValue;
   }
 
   /// When [withHistory]==true we keep all the produced [value]s here.

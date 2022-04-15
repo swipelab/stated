@@ -1,6 +1,8 @@
 # stated
 
-final state
+A neat set of tools aimed at making the state management easier.
+
+See: Stated<T>, Store, ObservableList, ListenableBuilder
 
 # example
 
