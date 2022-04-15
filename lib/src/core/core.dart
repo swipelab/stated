@@ -6,7 +6,6 @@ export 'listenable_builder.dart';
 export 'notifier.dart';
 export 'observable.dart';
 export 'observable_list.dart';
-export 'observer.dart';
 export 'serializer.dart';
 export 'store/async.dart';
 export 'store/store.dart';

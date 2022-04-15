@@ -2,7 +2,7 @@
 
 A neat set of tools aimed at making the state management easier.
 
-See: Stated<T>, Store, ObservableList, ListenableBuilder
+See: Stated, Store, ObservableList, ListenableBuilder
 
 # example
 
