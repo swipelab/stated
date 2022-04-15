@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/src/bloc/stated.dart';
-import 'package:stated/stated.dart';
+import 'package:stated/src/stated/stated.dart';
 
 typedef StatedBuilderDelegate<T> = Widget Function(
   BuildContext context,

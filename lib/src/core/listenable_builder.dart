@@ -1,60 +1,48 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/stated.dart';
+import 'package:stated/src/core/core.dart';
 
 typedef ListenableBuilderCreate<T extends Listenable> = T Function(
   BuildContext context,
 );
 typedef ListenableBuilderDelegate<T extends Listenable> = Widget Function(
   BuildContext context,
-  T state,
+  T listenable,
   Widget? child,
 );
 
-typedef ListenableBuilderDispose<T> = void Function(T listenable);
-
+/// A similar construct like Flutter's [AnimationBuilder] that also
+/// provides the [listenable] via the [builder] delegate.
+/// This can be useful when a complex expression is needed
+/// to resolve the [listenable] instance.
+/// Eg:
+/// ListenableBuilder.value(
+///   listenable: context.read<SomeListenable>(),
+///   builder: (context, listenable, child) => Widget(listenable),
+/// )
 class ListenableBuilder<T extends Listenable> extends StatefulWidget {
-  const ListenableBuilder._({
-    required this.create,
-    required this.builder,
-    this.child,
-    Key? key,
-    required ListenableBuilderDispose dispose,
-  })  : _dispose = dispose,
-        super(key: key);
-
   ListenableBuilder({
-    required this.create,
+    required ListenableBuilderCreate<T> create,
     required this.builder,
     this.child,
     Key? key,
-  }) : _dispose = _listenableCreateDispose;
+  })  : _create = create,
+        _listenable = null,
+        super(key: key);
 
   ListenableBuilder.value({
-    required T value,
+    required T listenable,
     required this.builder,
     this.child,
     Key? key,
-  })  : _dispose = _listenableValueDispose,
-        create = _listenableValueCreate(value),
+  })  : _listenable = listenable,
+        _create = null,
         super(key: key);
 
-  final ListenableBuilderCreate<T> create;
+  final T? _listenable;
+
+  final ListenableBuilderCreate<T>? _create;
 
   final ListenableBuilderDelegate<T> builder;
-
-  final ListenableBuilderDispose<T> _dispose;
-
-  static ListenableBuilderCreate<T>
-      _listenableValueCreate<T extends Listenable>(T value) =>
-          (BuildContext context) => value;
-
-  static void _listenableCreateDispose(dynamic e) {
-    if (e is Disposer) {
-      e.dispose();
-    }
-  }
-
-  static void _listenableValueDispose(dynamic e) {}
 
   final Widget? child;
 
@@ -65,11 +53,23 @@ class ListenableBuilder<T extends Listenable> extends StatefulWidget {
 class _ListenableBuilderState<T extends Listenable>
     extends State<ListenableBuilder<T>> {
   late T listenable;
+  late bool owned;
 
   @override
   void initState() {
     super.initState();
-    listenable = widget.create(context)..addListener(_notify);
+    owned = widget._listenable == null;
+    listenable = widget._listenable ?? widget._create!(context);
+  }
+
+  @override
+  void didUpdateWidget(covariant ListenableBuilder<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget._listenable != widget._listenable) {
+      oldWidget._listenable?.removeListener(_notify);
+      widget._listenable?.addListener(_notify);
+    }
   }
 
   void _notify() => setState(() {});
@@ -77,7 +77,9 @@ class _ListenableBuilderState<T extends Listenable>
   @override
   void dispose() {
     listenable.removeListener(_notify);
-    widget._dispose.call(listenable);
+    if (owned && listenable is Disposer) {
+      (listenable as Disposer).dispose();
+    }
     super.dispose();
   }
 

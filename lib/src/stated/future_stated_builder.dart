@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/src/bloc/stated.dart';
+import 'package:stated/src/stated/stated.dart';
 
 class FutureStatedBuilder<T> extends StatefulWidget {
   const FutureStatedBuilder({
