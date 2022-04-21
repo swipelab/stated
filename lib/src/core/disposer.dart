@@ -12,6 +12,7 @@ mixin Disposer on Disposable {
   }
 
   @override
+  @mustCallSuper
   void dispose() {
     _disposers.reversed.forEach((e) => e());
     _disposers.clear();
