@@ -5,12 +5,13 @@ import 'package:stated/src/stated/stated_builder.dart';
 /// A Custom ValueListenable implementation
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
 /// The [value] is never assigned directly, but rather built using with [build]
-abstract class Stated<T> implements ValueListenable<T> {
+abstract class Stated<T> with Disposable implements ValueListenable<T> {
   Stated({
     T? initialState,
     bool withHistory = false,
   }) : _withHistory = withHistory {
     _value = _nextValue(initialState);
+
     if (_withHistory && initialState != null) {
       history.add(initialState);
     }
@@ -21,11 +22,11 @@ abstract class Stated<T> implements ValueListenable<T> {
   /// Enables history for produced values with [build]
   final bool _withHistory;
 
-  /// After the [callback], produces the [value] and [notifyListeners]
+  /// After the [callback], produces the [value] and notifies listeners
   @protected
   @mustCallSuper
-  void setState([NotifierCallback? callback]) async {
-    await callback?.call();
+  void setState([VoidCallback? callback]) async {
+    callback?.call();
     _value = _nextValue();
     _notifier.notify();
   }
@@ -41,6 +42,9 @@ abstract class Stated<T> implements ValueListenable<T> {
   void removeListener(VoidCallback callback) {
     _notifier.removeListener(callback);
   }
+
+  @mustCallSuper
+  void dispose();
 
   T? _value;
 

@@ -38,7 +38,10 @@ class _StatedBuilderState<T> extends State<StatedBuilder<T>> {
 
   @override
   void dispose() {
-    bloc..removeListener(_notify);
+    bloc
+      ..removeListener(_notify)
+      ..dispose();
+
     super.dispose();
   }
 

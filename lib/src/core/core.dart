@@ -1,3 +1,4 @@
+export 'disposable.dart';
 export 'disposer.dart';
 export 'extension/bool.dart';
 export 'extension/listenable.dart';

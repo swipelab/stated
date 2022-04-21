@@ -39,7 +39,9 @@ class _FutureStatedBuilderState<T> extends State<FutureStatedBuilder<T>> {
 
   void _disposeBloc() async {
     if (_bloc != null) {
-      _bloc!.removeListener(_notify);
+      _bloc!
+        ..removeListener(_notify)
+        ..dispose();
       _bloc = null;
     }
   }

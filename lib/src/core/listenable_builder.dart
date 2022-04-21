@@ -77,8 +77,8 @@ class _ListenableBuilderState<T extends Listenable>
   @override
   void dispose() {
     listenable.removeListener(_notify);
-    if (owned && listenable is Disposer) {
-      (listenable as Disposer).dispose();
+    if (owned && listenable is Disposable) {
+      (listenable as Disposable).dispose();
     }
     super.dispose();
   }

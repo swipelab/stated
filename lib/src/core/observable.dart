@@ -18,4 +18,4 @@ import 'core.dart';
 /// 3. Uses [Notifier] implementation of Listenable to ensure the Listeners
 /// will not be notified more than once if [notifyListeners] is called during
 /// the same frame
-abstract class Observable with Disposer, Notifier {}
+abstract class Observable with ScheduledNotifier {}

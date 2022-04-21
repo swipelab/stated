@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:stated/src/core/core.dart';
+import 'package:flutter/cupertino.dart';
 
-class ObservableList<T> with Disposer, Notifier implements List<T> {
+class ObservableList<T> with ChangeNotifier implements List<T> {
   List<T> _list;
 
   ObservableList([Iterable<T>? items]) : _list = List.from(items ?? <T>[]);
