@@ -53,12 +53,10 @@ class ListenableBuilder<T extends Listenable> extends StatefulWidget {
 class _ListenableBuilderState<T extends Listenable>
     extends State<ListenableBuilder<T>> {
   late T listenable;
-  late bool owned;
 
   @override
   void initState() {
     super.initState();
-    owned = widget._listenable == null;
     listenable = widget._listenable ?? widget._create!(context);
   }
 
@@ -74,10 +72,12 @@ class _ListenableBuilderState<T extends Listenable>
 
   void _notify() => setState(() {});
 
+  bool get _isCreated => widget._listenable == null;
+
   @override
   void dispose() {
     listenable.removeListener(_notify);
-    if (owned && listenable is Disposable) {
+    if (_isCreated && listenable is Disposable) {
       (listenable as Disposable).dispose();
     }
     super.dispose();

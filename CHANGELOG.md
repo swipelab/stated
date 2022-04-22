@@ -1,7 +1,9 @@
-# 1.2.4+1
+# 1.2.5
 * Relaxed contract
 * Improved docs
 * Replaced Observer with ListenableBuilder
+* Removed Observable
+* Stated no longer has Tasks by default
 # 1.1.4+2
 * Improved docs
 * Relaxed the Observer constraints, now accepting Listenable

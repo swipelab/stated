@@ -5,7 +5,7 @@ import 'package:stated/src/stated/stated_builder.dart';
 /// A Custom ValueListenable implementation
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
 /// The [value] is never assigned directly, but rather built using with [build]
-abstract class Stated<T> with Disposable implements ValueListenable<T> {
+abstract class Stated<T> implements Disposable, ValueListenable<T> {
   Stated({
     T? initialState,
     bool withHistory = false,
@@ -44,7 +44,8 @@ abstract class Stated<T> with Disposable implements ValueListenable<T> {
   }
 
   @mustCallSuper
-  void dispose();
+  @override
+  void dispose() {}
 
   T? _value;
 

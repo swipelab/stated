@@ -17,14 +17,14 @@ class CounterState {
 }
 
 /// Counter logic
-class CounterBloc extends Stated<CounterState> {
+class CounterBloc extends Stated<CounterState> with Disposer {
   int _counter = 0;
 
   @override
   CounterState build() => CounterState(
         counter: _counter,
         increment: () {
-          notifyListeners(() => _counter++);
+          setState(() => _counter++);
         },
       );
 }
