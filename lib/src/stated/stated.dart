@@ -10,7 +10,7 @@ abstract class Stated<T> implements Disposable, ValueListenable<T> {
     T? initialState,
     bool withHistory = false,
   }) : _withHistory = withHistory {
-    _value = _nextValue(initialState);
+    _value = initialState;
 
     if (_withHistory && initialState != null) {
       history.add(initialState);
