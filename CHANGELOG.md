@@ -1,3 +1,5 @@
+# 1.2.8
+* Fix ListenableBuilder
 # 1.2.7
 * Added StoreProvider
 # 1.2.6
