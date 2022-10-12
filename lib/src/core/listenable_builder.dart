@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/src/core/core.dart';
+import 'package:stated/src/core/disposable.dart';
 
 typedef ListenableBuilderCreate<T extends Listenable> = T Function(
   BuildContext context,
@@ -16,7 +16,7 @@ typedef ListenableBuilderDelegate<T extends Listenable> = Widget Function(
 /// to resolve the [listenable] instance.
 /// Eg:
 /// ListenableBuilder.value(
-///   listenable: context.read<SomeListenable>(),
+///   listenable: context.get<SomeListenable>(),
 ///   builder: (context, listenable, child) => Widget(listenable),
 /// )
 class ListenableBuilder<T extends Listenable> extends StatefulWidget {
@@ -58,6 +58,7 @@ class _ListenableBuilderState<T extends Listenable>
   void initState() {
     super.initState();
     listenable = widget._listenable ?? widget._create!(context);
+    listenable.addListener(_notify);
   }
 
   @override
