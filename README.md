@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: StatedBuilder<CounterState>(
           create: (context) => CounterBloc(),
-          builder: (context, state, _) => CounterWidget(state),
+          builder: (context, bloc, _) => CounterWidget(bloc.value),
         ),
       ),
     );

@@ -55,17 +55,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Stated',
-      home: StatedBuilder<CounterState>(
+      home: StatedBuilder<CounterBloc>(
         create: (context) => CounterBloc(),
-        builder: (context, state, _) => Scaffold(
+        builder: (context, bloc, _) => Scaffold(
           appBar: AppBar(
             title: Text('Stated demo'),
           ),
           body: Center(
-            child: CounterDisplayWidget(state),
+            child: CounterDisplayWidget(bloc.value),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: state.increment,
+            onPressed: bloc.value.increment,
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),

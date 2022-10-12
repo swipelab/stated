@@ -1,13 +1,17 @@
 import 'package:flutter/widgets.dart';
-import 'package:stated/src/stated/stated.dart';
+import 'package:stated/stated.dart';
 
-typedef StatedBuilderDelegate<T> = Widget Function(
+typedef StatedBuilderDelegate<T extends Listenable> = Widget Function(
   BuildContext context,
-  T state,
+  T bloc,
   Widget? child,
 );
 
-class StatedBuilder<T> extends StatefulWidget {
+typedef StatedCreateDelegate<T extends Listenable> = T Function(
+  BuildContext context,
+);
+
+class StatedBuilder<T extends Listenable> extends StatefulWidget {
   const StatedBuilder({
     Key? key,
     required this.create,
@@ -15,8 +19,11 @@ class StatedBuilder<T> extends StatefulWidget {
     this.child,
   }) : super(key: key);
 
-  final Stated<T> Function(BuildContext context) create;
+  /// Delegate to create [Stated] to which this [StatedBuilder] gets connected.
+  final StatedCreateDelegate<T> create;
 
+  /// Delegate to build widget tree.
+  /// [StatedBuilder] will rebuild this widget tree when [Stated] emits event.
   final StatedBuilderDelegate<T> builder;
 
   final Widget? child;
@@ -25,31 +32,37 @@ class StatedBuilder<T> extends StatefulWidget {
   _StatedBuilderState<T> createState() => _StatedBuilderState<T>();
 }
 
-class _StatedBuilderState<T> extends State<StatedBuilder<T>> {
-  late Stated<T> bloc;
+class _StatedBuilderState<T extends Listenable>
+    extends State<StatedBuilder<T>> {
+  /// [Stated] to which this [StatedBuilder] responds.
+  late T value;
 
   @override
   void initState() {
     super.initState();
-    bloc = widget.create(context)..addListener(_notify);
+    value = widget.create(context)..addListener(_notify);
   }
-
-  void _notify() => setState(() {});
 
   @override
   void dispose() {
-    bloc
-      ..removeListener(_notify)
-      ..dispose();
+    value..removeListener(_notify);
+
+    if (value is Disposable) {
+      (value as Disposable).dispose();
+    }
 
     super.dispose();
   }
+
+  /// Notifies the widget that the [value] has changed.
+  /// This will trigger a rebuild of the widget.
+  void _notify() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     return widget.builder(
       context,
-      bloc.value,
+      value,
       widget.child,
     );
   }
