@@ -1,3 +1,6 @@
+# 1.2.9
+* Remove history from stated
+* Pass bloc through StatedBuilder
 # 1.2.8
 * Fix ListenableBuilder
 # 1.2.7

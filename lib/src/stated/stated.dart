@@ -4,31 +4,33 @@ import 'package:stated/src/stated/stated_builder.dart';
 
 /// A Custom ValueListenable implementation
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
-/// The [value] is never assigned directly, but rather built using with [build]
+/// The [value] is never assigned directly, but rather built using [build]
 abstract class Stated<T> implements Disposable, ValueListenable<T> {
-  Stated({
-    T? initialState,
-    bool withHistory = false,
-  }) : _withHistory = withHistory {
-    _value = initialState;
-
-    if (_withHistory && initialState != null) {
-      history.add(initialState);
-    }
-  }
-
   final _Notifier _notifier = _Notifier();
 
-  /// Enables history for produced values with [build]
-  final bool _withHistory;
+  /// The current value of the [Stated].
+  T? _value;
 
-  /// After the [callback], produces the [value] and notifies listeners
+  /// The current value of the [Stated].
+  /// If [value] is null, [build] is called to build the value.
+  T get value => _value ??= build();
+
+  /// This methods needs to be overridden to produce [value].
+  @protected
+  T build();
+
+  /// After the [callback] it produces the [value].
+  /// Notifies listeners only when [value] changes.
   @protected
   @mustCallSuper
   void setState([VoidCallback? callback]) async {
     callback?.call();
-    _value = _nextValue();
-    _notifier.notify();
+    final oldValue = _value;
+    _value = build();
+
+    if (oldValue != _value) {
+      _notifier.notify();
+    }
   }
 
   @override
@@ -45,28 +47,18 @@ abstract class Stated<T> implements Disposable, ValueListenable<T> {
 
   @mustCallSuper
   @override
-  void dispose() {}
-
-  T? _value;
-
-  T get value => _value ??= _nextValue();
-
-  /// This methods needs to be overridden to produce [value]
-  @protected
-  T build();
-
-  /// Builds the [value] and keeps track of all produced [value]s.
-  /// This can help with testing.
-  T _nextValue([T? value]) {
-    final nextValue = value ?? build();
-    if (_withHistory) history.add(nextValue);
-    return nextValue;
+  void dispose() {
+    _notifier.dispose();
   }
-
-  /// When [withHistory]==true we keep all the produced [value]s here.
-  List<T> history = [];
 }
 
 class _Notifier extends ChangeNotifier {
   void notify() => notifyListeners();
+}
+
+extension ListenableSubscriptionExtension on Listenable {
+  VoidCallback subscribe(VoidCallback callback) {
+    addListener(callback);
+    return () => removeListener(callback);
+  }
 }
