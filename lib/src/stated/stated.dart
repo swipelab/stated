@@ -56,9 +56,3 @@ class _Notifier extends ChangeNotifier {
   void notify() => notifyListeners();
 }
 
-extension ListenableSubscriptionExtension on Listenable {
-  VoidCallback subscribe(VoidCallback callback) {
-    addListener(callback);
-    return () => removeListener(callback);
-  }
-}
