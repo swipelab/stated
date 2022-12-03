@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:stated/src/core/core.dart';
 import 'package:stated/src/core/store/factory/store_factory.dart';
 
@@ -9,17 +11,20 @@ class LazyStoreFactory<T> extends StoreFactory<T> {
 
   final ResolverCreateDelegate<T> delegate;
   final Resolver resolver;
+  Completer<T>? _completer;
   T? _instance;
 
   Future<T> get future async {
-    if (_instance == null) {
+    if (_completer == null) {
+      _completer = Completer<T>();
       final instance = await delegate(resolver);
       if (instance is AsyncInit) {
         await instance.init();
       }
       _instance = instance;
+      _completer!.complete(instance);
     }
-    return _instance!;
+    return _completer!.future;
   }
 
   @override
