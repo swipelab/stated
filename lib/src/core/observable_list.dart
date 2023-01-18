@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 class ObservableList<T> with ChangeNotifier implements List<T> {
   List<T> _list;

@@ -9,4 +9,7 @@ class InstanceStoreFactory<T> extends StoreFactory<T> {
 
   @override
   T get instance => _value;
+
+  @override
+  String toString() => 'Instance: $T ${instance.runtimeType}';
 }

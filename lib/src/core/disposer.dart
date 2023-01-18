@@ -1,18 +1,20 @@
-import 'package:flutter/cupertino.dart';
-import 'package:stated/src/core/disposable.dart';
+import 'package:flutter/foundation.dart';
 
 /// Generic [Disposer] mixin
 /// Allows for the registration of dispose callbacks to be called on dispose
 /// Also acts as a decorator to inform the framework the class is disposable
-mixin Disposer on Disposable {
-  List<VoidCallback> _disposers = [];
+abstract class Disposer {
+  void addDispose(VoidCallback disposeCallback);
+}
 
-  void addDispose(VoidCallback dispose) {
-    _disposers.add(dispose);
+class ReverseDisposer with Disposer {
+  final List<VoidCallback> _disposers = [];
+
+  /// Registers callback to be executed on dispose of [Disposer] in reversed insert order
+  void addDispose(VoidCallback callback) {
+    _disposers.add(callback);
   }
 
-  @override
-  @mustCallSuper
   void dispose() {
     _disposers.reversed.forEach((e) => e());
     _disposers.clear();

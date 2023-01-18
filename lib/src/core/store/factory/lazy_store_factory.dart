@@ -31,4 +31,7 @@ class LazyStoreFactory<T> extends StoreFactory<T> {
   T get instance => _instance == null
       ? throw Exception('Service not initialized: $T')
       : _instance!;
+
+  @override
+  String toString() => 'Lazy $T ${_instance?.runtimeType}';
 }

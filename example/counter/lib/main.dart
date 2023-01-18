@@ -17,7 +17,7 @@ class CounterState {
 }
 
 /// Counter logic
-class CounterBloc extends Stated<CounterState> with Disposer {
+class CounterBloc extends Stated<CounterState> {
   int _counter = 0;
 
   @override

@@ -2,62 +2,112 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'core.dart';
+/// Construct for the [Task] to check withing the closure if it has been cancelled while awaiting IO
+abstract class CancellationToken {
+  /// if(isCancelled) throw [TaskCancelledException]
+  void ensureRunning();
+
+  bool get isCancelled;
+}
 
 typedef TaskDelegate = Future<void> Function();
+typedef CancellableTaskDelegate = Future<void> Function(
+  CancellationToken token,
+);
 
 typedef TypedTaskDelegate<T> = Future<T> Function();
 
 class TaskCancelledException implements Exception {}
 
-class _Task<T> {
-  _Task(this._task);
+class _Task<T> implements CancellationToken {
+  _Task(
+    this.task, {
+    this.onDone,
+  }) : _isCancelled = false;
 
-  final TaskDelegate _task;
+  final CancellableTaskDelegate task;
+  final VoidCallback? onDone;
+  bool _isCancelled;
+
+  bool get isCancelled => _isCancelled;
 
   final _completer = Completer<T?>();
 
-  void complete([FutureOr<T?> value]) => _completer.complete(value);
+  void done() {
+    onDone?.call();
+  }
 
-  void completeError(Object error) => _completer.completeError(error);
+  void cancel() {
+    _isCancelled = true;
+  }
 
-  Future<void> run() => _task.call();
+  void complete([FutureOr<T?> value]) {
+    _completer.complete(value);
+    done();
+  }
+
+  void completeError(Object error) {
+    _completer.completeError(error);
+    done();
+  }
+
+  Future<void> run() => task.call(this);
 
   Future<T?> get future => _completer.future;
+
+  @override
+  void ensureRunning() {
+    if (isCancelled) {
+      throw TaskCancelledException();
+    }
+  }
 }
 
-mixin Tasks on Disposer {
+/// [Tasks] mixin provides an easy way to sequence async work
+/// Eg:
+/// ...
+///     enqueue(() async { await Future.delayed(Duration(seconds: 10)); print('10 secs'); });
+///     enqueue(() async { await Future.delayed(Duration(seconds: 10)); print('1 sec'); });
+/// Output:
+///     10 secs
+///     1 sec
+mixin Tasks {
   final _queue = <_Task<void>>[];
 
   /// Enqueues [task] for execution and return the completion future
-  Future<void> enqueue(TaskDelegate task) {
-    _ensureInit();
+  /// Throws: [TaskCancelledException]
+  @nonVirtual
+  Future<void> enqueue(TaskDelegate task) => enqueueCancellable(
+        (_) => task(),
+      );
+
+  /// Enqueues [task] for execution and return the completion future
+  /// Also provides the [CancellationToken] to the closure
+  /// Throws: [TaskCancelledException]
+  @nonVirtual
+  Future<void> enqueueCancellable(CancellableTaskDelegate task) {
     final completer = _Task<void>(task);
     _queue.add(completer);
     _dequeue();
     return completer.future;
   }
 
-  Future<void> waitIdle() {
-    final completer = _Task<void>(() async {});
-    _queue.add(completer);
-    _dequeue();
-    return completer.future;
+  /// Provides a future that will complete when the current queue completes
+  /// Throws: [TaskCancelledException]
+  @nonVirtual
+  Future<void> waitIdle() => enqueue(() async {});
+
+  /// Cancels all enqueued tasks
+  @nonVirtual
+  void cancelTasks() {
+    _queue.forEach((e) => e.cancel());
   }
 
-  void _ensureInit() {
-    if (_isInit) {
-      return;
-    }
-    _isInit = true;
-    addDispose(_disposeTasks);
-  }
-
-  bool _isInit = false;
   bool _isClosed = false;
   int _runningTasks = 0;
   final int _maxConcurrentTasks = 1;
 
+  /// Concurrently running tasks count
   int get runningTasks => _runningTasks;
 
   Future<void> _dequeue() async {
@@ -68,15 +118,19 @@ mixin Tasks on Disposer {
 
     while (!_isClosed && _queue.isNotEmpty) {
       final task = _queue.removeAt(0);
-      try {
-        await task.run();
-        if (_isClosed) {
-          task.completeError(TaskCancelledException());
-        } else {
-          task.complete();
+      if (task.isCancelled) {
+        task.completeError(TaskCancelledException());
+      } else {
+        try {
+          await task.run();
+          if (_isClosed || task.isCancelled) {
+            task.completeError(TaskCancelledException());
+          } else {
+            task.complete();
+          }
+        } catch (e) {
+          task.completeError(e);
         }
-      } catch (e) {
-        task.completeError(e);
       }
     }
 
@@ -87,7 +141,9 @@ mixin Tasks on Disposer {
     _runningTasks--;
   }
 
-  void _disposeTasks() {
+  @protected
+  @nonVirtual
+  void disposeTasks() {
     _isClosed = true;
   }
 

@@ -1,3 +1,3 @@
-abstract class Disposable {
+mixin Disposable {
   void dispose();
 }
