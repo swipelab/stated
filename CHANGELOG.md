@@ -1,3 +1,7 @@
+# 1.3.0
+* Stated now implements Task & Disposer by default
+* General cleanup
+
 # 1.2.10
 
 * Fixed store.init - re-entrant
