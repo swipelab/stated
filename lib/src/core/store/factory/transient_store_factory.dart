@@ -14,4 +14,7 @@ class TransientStoreFactory<T> extends StoreFactory<T> with TransientFactory {
 
   @override
   T get instance => delegate(locator);
+
+  @override
+  String toString() => 'Transient $T';
 }

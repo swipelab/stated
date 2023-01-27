@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:stated/src/core/core.dart';
 import 'package:stated/src/stated/stated_builder.dart';
 
-/// A Custom ValueListenable implementation
+/// A Custom [ValueListenable] implementation
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
 /// The [value] is never assigned directly, but rather built using [build]
-abstract class Stated<T> implements Disposable, ValueListenable<T> {
-  final _Notifier _notifier = _Notifier();
+abstract class Stated<T>
+    with Disposable, Tasks
+    implements ValueListenable<T>, Disposer {
+  final Notifier _notifier = Notifier();
+  final _disposer = ReverseDisposer();
 
   /// The current value of the [Stated].
   T? _value;
@@ -33,6 +36,10 @@ abstract class Stated<T> implements Disposable, ValueListenable<T> {
     }
   }
 
+  @mustCallSuper
+  @override
+  void addDispose(VoidCallback callback) => _disposer.addDispose(callback);
+
   @override
   @mustCallSuper
   void addListener(VoidCallback callback) {
@@ -48,11 +55,8 @@ abstract class Stated<T> implements Disposable, ValueListenable<T> {
   @mustCallSuper
   @override
   void dispose() {
+    disposeTasks();
+    _disposer.dispose();
     _notifier.dispose();
   }
 }
-
-class _Notifier extends ChangeNotifier {
-  void notify() => notifyListeners();
-}
-
