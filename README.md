@@ -1,13 +1,22 @@
 # stated
 
-A neat set of tools aimed at making the state management easier.
+A neat set of tools
 
-See: Stated, Store, ObservableList, ListenableBuilder
+See: Stated, Store, Rx, Disposable, ListenableBuilder
 
-# example
+# examples
 
-
+## Rx.map with debounce
 ```dart
+
+final ValueListenable<int> counter1 = someCounter;
+final ValueListenable<int> counter2 = anotherCounter;
+
+final ValueListenable<int> valueListenable = Rx.map([counter1, counter2], debounce(() => counter1.value + counter2.value));
+```
+
+## Basic Counter Example
+```dart 
 import 'package:flutter/material.dart';
 import 'package:stated/stated.dart';
 
@@ -19,10 +28,8 @@ void main() {
 class CounterState {
   CounterState({
     required this.counter,
-    required this.increment,
   });
 
-  final VoidCallback increment;
   final int counter;
 }
 
@@ -33,14 +40,14 @@ class CounterBloc extends Stated<CounterState> {
   @override
   CounterState build() => CounterState(
         counter: _counter,
-        increment: () => setState(() => _counter++),
       );
 }
 
 /// Counter presenter
 class CounterWidget extends StatelessWidget {
-  CounterWidget(this.state);
+  CounterWidget(this.state, this.bloc);
   final CounterState state;
+  
 
   @override
   Widget build(BuildContext context) => GestureDetector(

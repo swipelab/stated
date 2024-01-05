@@ -1,3 +1,8 @@
+# 1.5.0
+* added Rx.map
+* added debouncer
+* increased the min dart sdk
+
 # 1.3.0
 * Stated now implements Task & Disposer by default
 * General cleanup

@@ -32,7 +32,7 @@ mixin Register on Resolver, Locator {
 
   void add<T>(T instance) {
     addFactory(
-          (e) => InstanceStoreFactory(instance),
+      (e) => InstanceStoreFactory(instance),
     );
   }
 
@@ -40,17 +40,17 @@ mixin Register on Resolver, Locator {
 
   void addLazy<T>(ResolverCreateDelegate<T> delegate) => addFactory(
         (e) => LazyStoreFactory<T>(
-      resolver: this,
-      delegate: delegate,
-    ),
-  );
+          resolver: this,
+          delegate: delegate,
+        ),
+      );
 
   void addTransient<T>(LocatorCreateDelegate<T> delegate) => addFactory(
         (e) => TransientStoreFactory<T>(
-      locator: this,
-      delegate: delegate,
-    ),
-  );
+          locator: this,
+          delegate: delegate,
+        ),
+      );
 }
 
 class Store with Locator, Resolver, Register {

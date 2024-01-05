@@ -6,10 +6,9 @@ import 'package:stated/src/stated/stated_builder.dart';
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
 /// The [value] is never assigned directly, but rather built using [build]
 abstract class Stated<T>
-    with Disposable, Tasks
-    implements ValueListenable<T>, Disposer {
+    with Disposer, Tasks
+    implements ValueListenable<T> {
   final Notifier _notifier = Notifier();
-  final _disposer = ReverseDisposer();
 
   /// The current value of the [Stated].
   T? _value;
@@ -36,10 +35,6 @@ abstract class Stated<T>
     }
   }
 
-  @mustCallSuper
-  @override
-  void addDispose(VoidCallback callback) => _disposer.addDispose(callback);
-
   @override
   @mustCallSuper
   void addListener(VoidCallback callback) {
@@ -56,7 +51,7 @@ abstract class Stated<T>
   @override
   void dispose() {
     disposeTasks();
-    _disposer.dispose();
     _notifier.dispose();
+    super.dispose();
   }
 }
