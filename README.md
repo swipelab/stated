@@ -37,22 +37,29 @@ class CounterState {
 class CounterBloc extends Stated<CounterState> {
   int _counter = 0;
 
+  void increment() {
+    _counter++;
+    setState();
+  }
+
   @override
-  CounterState build() => CounterState(
+  CounterState build() =>
+      CounterState(
         counter: _counter,
       );
 }
 
 /// Counter presenter
 class CounterWidget extends StatelessWidget {
-  CounterWidget(this.state, this.bloc);
-  final CounterState state;
-  
+  CounterWidget(this.bloc);
+
+  final CounterBloc bloc;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: state.increment,
-        child: Text('Counter: ${state.counter}'),
+  Widget build(BuildContext context) =>
+      GestureDetector(
+        onTap: bloc.increment,
+        child: Text('Counter: ${bloc.value.counter}'),
       );
 }
 
@@ -65,7 +72,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: StatedBuilder<CounterState>(
           create: (context) => CounterBloc(),
-          builder: (context, bloc, _) => CounterWidget(bloc.value),
+          builder: (context, bloc, _) => CounterWidget(bloc),
         ),
       ),
     );
