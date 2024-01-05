@@ -1,6 +1,7 @@
-# 1.5.0
+# 2.0.0
 * added Rx.map
 * added debouncer
+* added BlocBuilder
 * increased the min dart sdk
 
 # 1.3.0
