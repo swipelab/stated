@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:stated/stated.dart';
 import 'disposable.dart';
 
 typedef BlocBuilderDelegate<T> = Widget Function(
@@ -43,10 +43,12 @@ class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
   }
 
   void _dispose(BlocBuilder<T> widget) {
-    if (bloc is Disposable) {
-      (bloc as Disposable).dispose();
-    } else if (bloc is ChangeNotifier) {
-      (bloc as ChangeNotifier).dispose();
+    final bloc = this.bloc;
+    switch (bloc) {
+      case Disposable():
+        bloc.dispose();
+      case ChangeNotifier():
+        bloc.dispose();
     }
   }
 

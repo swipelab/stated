@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Stated',
-      home: StatedBuilder<CounterBloc>(
+      home: BlocBuilder<CounterBloc>(
         create: (context) => CounterBloc(),
         builder: (context, bloc, _) => Scaffold(
           appBar: AppBar(

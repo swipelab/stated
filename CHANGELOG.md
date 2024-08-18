@@ -1,3 +1,6 @@
+# 2.1.0
+* dropped ListenableBuilder (as flutter already includes one)
+
 # 2.0.1
 * added Rx.map
 * added debouncer
