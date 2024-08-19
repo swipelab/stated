@@ -12,7 +12,6 @@ typedef StatedCreateDelegate<T extends Listenable> = T Function(
 );
 
 /// A builder widget, meant to be used for creating and using a [Listenable] bloc
-@Deprecated('will be replaced [BlocBuilder]')
 class StatedBuilder<T extends Listenable> extends StatefulWidget {
   const StatedBuilder({
     Key? key,
