@@ -40,7 +40,7 @@ class StatedBuilder<T extends Listenable> extends StatefulWidget {
   final T? _value;
 
   /// Delegate to build widget tree.
-  /// [StatedBuilder] will rebuild this widget tree when [Stated] emits event.
+  /// [StatedBuilder] will rebuild this widget tree when [Rx] emits event.
   final StatedBuilderDelegate<T> builder;
 
   final Widget? child;

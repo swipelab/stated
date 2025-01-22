@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stated/stated.dart';
-import 'disposable.dart';
+import 'dispose.dart';
 
 typedef BlocBuilderDelegate<T> = Widget Function(
   BuildContext context,

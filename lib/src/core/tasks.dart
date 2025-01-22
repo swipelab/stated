@@ -146,18 +146,4 @@ mixin Tasks {
   void disposeTasks() {
     _isClosed = true;
   }
-
-  static VoidCallback scheduled(VoidCallback callback) {
-    var targetVersion = 0;
-    var currentVersion = 0;
-    return () {
-      if (targetVersion == currentVersion) {
-        targetVersion++;
-        scheduleMicrotask(() {
-          targetVersion = ++currentVersion;
-          callback();
-        });
-      }
-    };
-  }
 }
