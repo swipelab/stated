@@ -9,6 +9,7 @@ abstract class Disposable {
 }
 
 mixin class Dispose implements Disposable {
+  /// run each on [dispose] (reversed)
   final List<VoidCallback> _dispose = [];
 
   _assertNotDisposed() {
@@ -38,7 +39,7 @@ mixin class Dispose implements Disposable {
 
     _disposed = true;
     _dispose
-      ..reversed.forEach(invoke)
+      ..reversed.forEach(call)
       ..clear();
   }
 

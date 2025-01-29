@@ -43,18 +43,19 @@ mixin class Notifier implements Dispose, Listenable {
 /// Usage: Allows for changes during setState of a stateful widget
 /// [NOT RECOMMENDED]
 class ScheduledNotifier with Notifier {
-  ScheduledNotifier() {
-    _notify = Rx.scheduled(super.notifyListeners);
-  }
+  ScheduledNotifier();
 
-  late final VoidCallback _notify;
+  late final VoidCallback _scheduledNotifyListeners = Rx.scheduled(
+      super.notifyListeners);
 
-  void notify() => _notify();
+  @override
+  void notifyListeners() => _scheduledNotifyListeners();
 }
 
 /// Provides public access the [notifyListeners].
 class PublicNotifier extends Notifier {
-  void notify() => notifyListeners();
+  @override
+  void notifyListeners() => super.notifyListeners();
 }
 
 class _ChangeNotifier extends ChangeNotifier {
@@ -89,6 +90,8 @@ class LazyNotifier<T> with Notifier implements ValueListenable<T> {
   final ValueGetter<T> fn;
 
   void update() {
+    if (!hasListeners) return;
+
     final newValue = fn();
     if (newValue == _value) {
       return;
