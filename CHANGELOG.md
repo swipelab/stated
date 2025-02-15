@@ -1,3 +1,8 @@
+# 2.3.0
+* Rx moved to Emitter
+* Notifier renamed to Emitter
+* ObservableList renamed to ListEmitter
+
 # 2.1.1
 * dropped ListenableBuilder (as flutter already includes one)
 
