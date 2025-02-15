@@ -1,3 +1,6 @@
+# 3.0.1
+* Added UriParser 
+
 # 3.0.0
 * Rx moved to Emitter
 * Notifier renamed to Emitter
