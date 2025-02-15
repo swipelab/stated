@@ -5,7 +5,6 @@ void main() {
   runApp(MyApp());
 }
 
-
 /// ViewModel of Counter
 class CounterState {
   CounterState({

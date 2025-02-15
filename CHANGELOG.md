@@ -1,4 +1,4 @@
-# 2.3.0
+# 3.0.0
 * Rx moved to Emitter
 * Notifier renamed to Emitter
 * ObservableList renamed to ListEmitter
