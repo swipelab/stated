@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:stated/stated.dart';
 
 /// Construct for the [Task] to check withing the closure if it has been cancelled while awaiting IO
 abstract class CancellationToken {
@@ -71,7 +72,7 @@ class _Task<T> implements CancellationToken {
 /// Output:
 ///     10 secs
 ///     1 sec
-mixin Tasks {
+mixin Tasks on Dispose {
   final _queue = <_Task<void>>[];
 
   /// Enqueues [task] for execution and return the completion future
@@ -86,6 +87,11 @@ mixin Tasks {
   /// Throws: [TaskCancelledException]
   @nonVirtual
   Future<void> enqueueCancellable(CancellableTaskDelegate task) {
+    if (!_isActive) {
+      _isActive = true;
+      disposeTasks.disposeBy(this);
+    }
+
     final completer = _Task<void>(task);
     _queue.add(completer);
     _dequeue();
@@ -103,6 +109,7 @@ mixin Tasks {
     _queue.forEach((e) => e.cancel());
   }
 
+  bool _isActive = false;
   bool _isClosed = false;
   int _runningTasks = 0;
   final int _maxConcurrentTasks = 1;

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'dispose.dart';
-import 'listenable.dart';
+import 'emitter.dart';
 
 class Publisher<T> with Dispose {
   final List<ValueSetter> _subscriptions = [];
@@ -17,8 +17,8 @@ class Publisher<T> with Dispose {
     }
   }
 
-  Notifier on<E extends T>(ValueSetter<E> callback) {
-    final notifier = PublicNotifier();
+  Emitter on<E extends T>(ValueSetter<E> callback) {
+    final notifier = PublicEmitter();
     subscribe((e) {
       if (e is E) {
         callback(e);

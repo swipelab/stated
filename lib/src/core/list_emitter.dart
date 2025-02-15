@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'listenable.dart';
+import 'emitter.dart';
 
-class ObservableList<T> with Notifier implements List<T> {
+class ListEmitter<T> with Emitter implements List<T> {
   List<T> _list;
 
-  ObservableList([Iterable<T>? items]) : _list = List.from(items ?? <T>[]);
+  ListEmitter([Iterable<T>? items]) : _list = List.from(items ?? <T>[]);
 
   @override
   T get first => _list.first;

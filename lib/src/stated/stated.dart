@@ -5,7 +5,7 @@ import 'package:stated/src/stated/stated_builder.dart';
 /// A Custom [ValueListenable] implementation
 /// Can be used in with [ListenableBuilder] or [StatedBuilder]
 /// The [value] is never assigned directly, but rather built using [build]
-abstract class Stated<T> with Notifier, Tasks implements ValueListenable<T> {
+abstract class Stated<T> with Emitter, Tasks implements ValueListenable<T> {
   /// The current value of the [Stated].
   T? _value;
 

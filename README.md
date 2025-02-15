@@ -2,17 +2,17 @@
 
 A neat set of tools
 
-See: Stated, Store, Rx, Disposable, ListenableBuilder
+See: Stated, Store, Disposable, Emitter
 
 # examples
 
-## Rx.map with debounce
+## Emitter.map with debounce
 ```dart
 
 final ValueListenable<int> counter1 = someCounter;
 final ValueListenable<int> counter2 = anotherCounter;
 
-final ValueListenable<int> valueListenable = Rx.map([counter1, counter2], debounce(() => counter1.value + counter2.value));
+final ValueListenable<int> sumOfCounters = Emitter.map([counter1, counter2], debounce(() => counter1.value + counter2.value));
 ```
 
 ## Basic Counter Example
@@ -24,7 +24,7 @@ void main() {
   runApp(MyApp());
 }
 
-/// ViewModel of Counter
+/// Model of Counter
 class CounterState {
   CounterState({
     required this.counter,
@@ -33,7 +33,7 @@ class CounterState {
   final int counter;
 }
 
-/// Counter logic
+/// Counter ViewModel
 class CounterBloc extends Stated<CounterState> {
   int _counter = 0;
 
@@ -49,7 +49,7 @@ class CounterBloc extends Stated<CounterState> {
       );
 }
 
-/// Counter presenter
+/// Counter View
 class CounterWidget extends StatelessWidget {
   CounterWidget(this.bloc);
 

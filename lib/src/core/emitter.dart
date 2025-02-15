@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
-import 'package:stated/src/rx/rx.dart';
 
 import 'dispose.dart';
 
-mixin class Notifier implements Dispose, Listenable {
+mixin class Emitter implements Dispose, Listenable {
   final Dispose _dispose = Dispose();
   final _ChangeNotifier _notifier = _ChangeNotifier();
 
@@ -37,23 +38,50 @@ mixin class Notifier implements Dispose, Listenable {
   bool get disposed => _dispose.disposed;
 
   bool get hasListeners => _notifier.hasListeners;
+
+  /// Creates a [LazyEmitter] with the [value] invalidated when any of the [listenables] notifies
+  /// NOTE: it only notifies if the new value returned from [fn] differs from previous
+  static LazyEmitter<T> map<T>(
+      List<Listenable> listenables, ValueGetter<T> fn) {
+    final notifier = LazyEmitter<T>(fn);
+
+    listenables
+        .map((e) => e.subscribe(notifier.update))
+        .forEach(notifier.addDispose);
+
+    return notifier;
+  }
+
+  static VoidCallback scheduled(VoidCallback callback) {
+    var targetVersion = 0;
+    var currentVersion = 0;
+    return () {
+      if (targetVersion == currentVersion) {
+        targetVersion++;
+        scheduleMicrotask(() {
+          targetVersion = ++currentVersion;
+          callback();
+        });
+      }
+    };
+  }
 }
 
-/// [ScheduledNotifier] allows for the listeners to be notified post frame
+/// [ScheduledEmitter] allows for the listeners to be notified post frame
 /// Usage: Allows for changes during setState of a stateful widget
 /// [NOT RECOMMENDED]
-class ScheduledNotifier with Notifier {
-  ScheduledNotifier();
+class ScheduledEmitter with Emitter {
+  ScheduledEmitter();
 
-  late final VoidCallback _scheduledNotifyListeners = Rx.scheduled(
-      super.notifyListeners);
+  late final VoidCallback _scheduledNotifyListeners =
+      Emitter.scheduled(super.notifyListeners);
 
   @override
   void notifyListeners() => _scheduledNotifyListeners();
 }
 
 /// Provides public access the [notifyListeners].
-class PublicNotifier extends Notifier {
+class PublicEmitter extends Emitter {
   @override
   void notifyListeners() => super.notifyListeners();
 }
@@ -66,8 +94,8 @@ class _ChangeNotifier extends ChangeNotifier {
   bool get hasListeners => super.hasListeners;
 }
 
-class NotifierOf<T> with Notifier implements ValueNotifier<T> {
-  NotifierOf(this._value);
+class ValueEmitter<T> with Emitter implements ValueNotifier<T> {
+  ValueEmitter(this._value);
 
   T _value;
 
@@ -84,8 +112,8 @@ class NotifierOf<T> with Notifier implements ValueNotifier<T> {
   }
 }
 
-class LazyNotifier<T> with Notifier implements ValueListenable<T> {
-  LazyNotifier(this.fn);
+class LazyEmitter<T> with Emitter implements ValueListenable<T> {
+  LazyEmitter(this.fn);
 
   final ValueGetter<T> fn;
 
