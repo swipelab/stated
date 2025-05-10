@@ -17,11 +17,11 @@ class Publisher<T> with Dispose {
     }
   }
 
-  Emitter on<E extends T>(ValueSetter<E> callback) {
+  Emitter on<E extends T>([ValueSetter<E>? callback]) {
     final notifier = PublicEmitter();
     subscribe((e) {
       if (e is E) {
-        callback(e);
+        callback?.call(e);
         notifier.notifyListeners();
       }
     }).disposeBy(notifier);

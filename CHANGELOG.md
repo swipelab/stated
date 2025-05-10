@@ -1,3 +1,6 @@
+# 3.0.2
+* Added Subscription & SubscriptionBuilder
+ 
 # 3.0.1
 * Added UriParser 
 

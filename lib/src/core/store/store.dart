@@ -1,7 +1,12 @@
-import 'package:stated/src/core/store/factory/store_factory.dart';
 import 'package:stated/src/core/store/factory/instance_store_factory.dart';
 import 'package:stated/src/core/store/factory/lazy_store_factory.dart';
+import 'package:stated/src/core/store/factory/store_factory.dart';
 import 'package:stated/src/core/store/factory/transient_store_factory.dart';
+
+export 'package:stated/src/core/store/factory/instance_store_factory.dart';
+export 'package:stated/src/core/store/factory/lazy_store_factory.dart';
+export 'package:stated/src/core/store/factory/store_factory.dart';
+export 'package:stated/src/core/store/factory/transient_store_factory.dart';
 
 typedef LocatorCreateDelegate<T> = T Function(Locator e);
 typedef ResolverCreateDelegate<T> = Future<T> Function(Resolver e);
@@ -32,24 +37,28 @@ mixin Register on Resolver, Locator {
 
   void add<T>(T instance) {
     addFactory(
-      (e) => InstanceStoreFactory(instance),
+          (e) => InstanceStoreFactory(instance),
     );
   }
 
   void addFactory<T>(FactoryDelegate<T> factory) => registry[T] = factory(this);
 
-  void addLazy<T>(ResolverCreateDelegate<T> delegate) => addFactory(
-        (e) => LazyStoreFactory<T>(
-          resolver: this,
-          delegate: delegate,
-        ),
+  void addLazy<T>(ResolverCreateDelegate<T> delegate) =>
+      addFactory(
+            (e) =>
+            LazyStoreFactory<T>(
+              resolver: this,
+              delegate: delegate,
+            ),
       );
 
-  void addTransient<T>(LocatorCreateDelegate<T> delegate) => addFactory(
-        (e) => TransientStoreFactory<T>(
-          locator: this,
-          delegate: delegate,
-        ),
+  void addTransient<T>(LocatorCreateDelegate<T> delegate) =>
+      addFactory(
+            (e) =>
+            TransientStoreFactory<T>(
+              locator: this,
+              delegate: delegate,
+            ),
       );
 }
 

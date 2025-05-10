@@ -1,4 +1,5 @@
 typedef Callback<T> = T Function();
+typedef Predicate<T> = bool Function(T e);
 
 extension IterableFunctional<E> on Iterable<E> {
   E? firstWhereOrNull(bool Function(E e) test) {

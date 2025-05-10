@@ -41,8 +41,8 @@ mixin class Emitter implements Dispose, Listenable {
 
   /// Creates a [LazyEmitter] with the [value] invalidated when any of the [listenables] notifies
   /// NOTE: it only notifies if the new value returned from [fn] differs from previous
-  static LazyEmitter<T> map<T>(
-      List<Listenable> listenables, ValueGetter<T> fn) {
+  static LazyEmitter<T> map<T>(List<Listenable> listenables,
+      ValueGetter<T> fn) {
     final notifier = LazyEmitter<T>(fn);
 
     listenables
@@ -74,7 +74,7 @@ class ScheduledEmitter with Emitter {
   ScheduledEmitter();
 
   late final VoidCallback _scheduledNotifyListeners =
-      Emitter.scheduled(super.notifyListeners);
+  Emitter.scheduled(super.notifyListeners);
 
   @override
   void notifyListeners() => _scheduledNotifyListeners();
