@@ -5,49 +5,28 @@ void main() {
   runApp(MyApp());
 }
 
-/// ViewModel of Counter
 class CounterState {
   CounterState({
     required this.counter,
-    required this.increment,
   });
 
-  final VoidCallback increment;
   final int counter;
 }
 
-/// Counter logic
 class CounterBloc extends Stated<CounterState> {
   int _counter = 0;
 
   @override
-  CounterState build() => CounterState(
+  CounterState buildState() {
+    return CounterState(
         counter: _counter,
-        increment: () {
-          setState(() => _counter++);
-        },
       );
-}
+  }
 
-/// Counter presenter
-class CounterDisplayWidget extends StatelessWidget {
-  CounterDisplayWidget(this.state);
-
-  final CounterState state;
-
-  @override
-  Widget build(BuildContext context) => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'You have pushed the button this many times:',
-          ),
-          Text(
-            '${state.counter}',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-        ],
-      );
+  void increment() {
+    _counter++;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -55,17 +34,29 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Stated',
-      home: BlocBuilder<CounterBloc>(
+      home: StatedBuilder<CounterBloc>(
         create: (context) => CounterBloc(),
         builder: (context, bloc, _) => Scaffold(
           appBar: AppBar(
             title: Text('Stated demo'),
           ),
-          body: Center(
-            child: CounterDisplayWidget(bloc.value),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                'You have pushed the button this many times:',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                '${bloc.value.counter}',
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: bloc.value.increment,
+            onPressed: bloc.increment,
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),

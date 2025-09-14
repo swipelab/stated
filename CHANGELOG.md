@@ -1,3 +1,7 @@
+# 3.1.0
+* Stated.setState renamed to Stated.notifyListeners
+* Stated.build renamed to Stated.buildState
+
 # 3.0.2
 * Added Subscription & SubscriptionBuilder
  
