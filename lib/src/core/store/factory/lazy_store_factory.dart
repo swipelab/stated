@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:stated/src/core/core.dart';
-import 'package:stated/src/core/store/factory/store_factory.dart';
 
 class LazyStoreFactory<T> extends StoreFactory<T> {
   LazyStoreFactory({
