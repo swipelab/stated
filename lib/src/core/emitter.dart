@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import 'dispose.dart';
 
+/// Core reactive mixin combining a private [ChangeNotifier] with disposal.
+/// Extend / mix into classes that need manual `notifyListeners()` control.
 mixin class Emitter implements Dispose, Listenable {
   final Dispose _dispose = Dispose();
   final _ChangeNotifier _notifier = _ChangeNotifier();
@@ -25,6 +27,7 @@ mixin class Emitter implements Dispose, Listenable {
   }
 
   @protected
+  /// Notifies all registered listeners.
   void notifyListeners() => _notifier.notifyListeners();
 
   @override
@@ -37,12 +40,12 @@ mixin class Emitter implements Dispose, Listenable {
   @override
   bool get disposed => _dispose.disposed;
 
+  /// Whether there is at least one active listener.
   bool get hasListeners => _notifier.hasListeners;
 
-  /// Creates a [LazyEmitter] with the [value] invalidated when any of the [listenables] notifies
-  /// NOTE: it only notifies if the new value returned from [fn] differs from previous
-  static LazyEmitter<T> map<T>(List<Listenable> listenables,
-      ValueGetter<T> fn) {
+  /// Creates a derived [LazyEmitter] recomputed when any [listenables] fire.
+  /// Emits only if the newly computed value differs from the cached value.
+  static LazyEmitter<T> map<T>(List<Listenable> listenables, ValueGetter<T> fn) {
     final notifier = LazyEmitter<T>(fn);
 
     listenables
@@ -52,6 +55,7 @@ mixin class Emitter implements Dispose, Listenable {
     return notifier;
   }
 
+  /// Wraps [callback] so it is coalesced & scheduled in a microtask.
   static VoidCallback scheduled(VoidCallback callback) {
     var targetVersion = 0;
     var currentVersion = 0;
@@ -67,9 +71,9 @@ mixin class Emitter implements Dispose, Listenable {
   }
 }
 
-/// [ScheduledEmitter] allows for the listeners to be notified post frame
-/// Usage: Allows for changes during setState of a stateful widget
-/// [NOT RECOMMENDED]
+/// [ScheduledEmitter] allows listeners to be notified post frame.
+/// Usage: enables notifications during a widget's `setState` without re-entrancy.
+/// Not generally recommended—prefer standard emit patterns unless necessary.
 class ScheduledEmitter with Emitter {
   ScheduledEmitter();
 
@@ -80,7 +84,7 @@ class ScheduledEmitter with Emitter {
   void notifyListeners() => _scheduledNotifyListeners();
 }
 
-/// Provides public access the [notifyListeners].
+/// Exposes [notifyListeners] publicly (no protection) for advanced use cases.
 class PublicEmitter extends Emitter {
   @override
   void notifyListeners() => super.notifyListeners();
@@ -94,6 +98,16 @@ class _ChangeNotifier extends ChangeNotifier {
   bool get hasListeners => super.hasListeners;
 }
 
+/// Mutable value holder emitting when [value] changes (shallow equality).
+/// Mutable value holder emitting when [value] changes (shallow equality).
+///
+/// {@tool snippet}
+/// ```dart
+/// final counter = ValueEmitter<int>(0);
+/// counter.addListener(() => print(counter.value));
+/// counter.value++;
+/// ```
+/// {@end-tool}
 class ValueEmitter<T> with Emitter implements ValueNotifier<T> {
   ValueEmitter(this._value);
 
@@ -112,6 +126,18 @@ class ValueEmitter<T> with Emitter implements ValueNotifier<T> {
   }
 }
 
+/// Lazily computes its value via [fn]. Recomputes on [update] if listeners
+/// are attached and the value actually changes.
+///
+/// {@tool snippet}
+/// ```dart
+/// final a = ValueEmitter(1);
+/// final b = ValueEmitter(2);
+/// final sum = Emitter.map([a, b], () => a.value + b.value);
+/// sum.addListener(() => print('sum: ${sum.value}'));
+/// a.value = 10; b.value = 5; // triggers recompute
+/// ```
+/// {@end-tool}
 class LazyEmitter<T> with Emitter implements ValueListenable<T> {
   LazyEmitter(this.fn);
 
@@ -135,7 +161,7 @@ class LazyEmitter<T> with Emitter implements ValueListenable<T> {
 }
 
 extension ListenableExtension on Listenable {
-  /// returns closure to remove the listener ([callback])
+  /// Adds [callback] as listener and returns a function to remove it.
   VoidCallback subscribe(VoidCallback callback) {
     addListener(callback);
     return () => removeListener(callback);
@@ -143,8 +169,6 @@ extension ListenableExtension on Listenable {
 }
 
 extension VoidCallbackExtension on VoidCallback {
-  /// When creating subscriptions that can be disposed using a callback we can add them to a [Dispose]
-  void disposeBy(Dispose disposer) {
-    disposer.addDispose(this);
-  }
+  /// Adds this callback to a [Dispose] aggregator for later invocation.
+  void disposeBy(Dispose disposer) => disposer.addDispose(this);
 }

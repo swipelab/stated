@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:stated/stated.dart';
 import 'dispose.dart';
 
+/// Signature for the widget building function used by [BlocBuilder].
 typedef BlocBuilderDelegate<T> = Widget Function(
   BuildContext context,
   T bloc,
   Widget? child,
 );
 
+/// Signature for the create callback that instantiates the bloc once.
 typedef BlocBuilderCreateDelegate<T> = T Function(
   BuildContext context,
 );
 
+/// Lightweight life‑cycle helper: creates a bloc/object once and disposes it
+/// if it implements [Disposable] or [ChangeNotifier]. Does NOT listen / rebuild
+/// automatically – use when you only need construction & disposal wiring.
 class BlocBuilder<T> extends StatefulWidget {
   const BlocBuilder({
     /// NOTE: if the create returns a Disposable/ChangeNotifier the `dispose` will be called
@@ -42,6 +46,7 @@ class _BlocBuilderState<T> extends State<BlocBuilder<T>> {
     bloc = widget.create(context);
   }
 
+  /// Disposes underlying bloc if it supports disposal semantics.
   void _dispose(BlocBuilder<T> widget) {
     final bloc = this.bloc;
     switch (bloc) {

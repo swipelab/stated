@@ -8,6 +8,8 @@ import 'functional.dart';
 /// selected value changes.
 class Subscription with Emitter {
   /// Adds a listenable to the subscription.
+  /// Registers [listenable]. Optional [select] narrows change detection;
+  /// [when] gates notifications. Returns this for chaining.
   Subscription add<T extends Listenable>(
     T listenable, {
     /// - [select]->[R] can be used to only notify when [R] changes

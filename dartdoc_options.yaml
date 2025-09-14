@@ -1,0 +1,35 @@
+# dartdoc configuration for stated
+# See: https://dart.dev/tools/dartdoc
+
+dartdoc:
+  categories:
+    State & Builders:
+      name: State & Builders
+      markdown: README.md
+      package-order: [stated]
+    Reactive Primitives:
+      name: Reactive Primitives
+    Async & Lifecycle:
+      name: Async & Lifecycle
+    DI & Store:
+      name: DI & Store
+    Routing & URI:
+      name: Routing & URI
+  categoryOrder:
+    - State & Builders
+    - Reactive Primitives
+    - Async & Lifecycle
+    - DI & Store
+    - Routing & URI
+  showUndocumentedCategories: false
+
+# Exclude private generated / example build artifacts
+exclude:
+  - example/**/build/**
+  - build/**
+  - test/**
+
+# Link to source on GitHub (adjust if repo path changes)
+linkToSource:
+  root: .
+  uriTemplate: "https://github.com/swipelab/stated/blob/master/{path}#L{line}"

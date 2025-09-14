@@ -14,13 +14,14 @@ typedef FactoryDelegate<T> = StoreFactory<T> Function(Resolver e);
 
 /// Sync locator
 mixin Locator {
-  /// This cannot be used before the store is initialised
-  /// Due to the fact services may implement [AsyncInit]
+  /// Returns a synchronously available instance (throws if not initialised
+  /// or registered; lazy entries must be warmed by [Register.init]).
   T get<T>();
 }
 
 /// Async locator (mainly to enable lazy async)
 mixin Resolver {
+  /// Resolves (and initialises if lazy) a registered service asynchronously.
   Future<T> resolve<T>();
 }
 
@@ -35,33 +36,37 @@ mixin Register on Resolver, Locator {
     );
   }
 
-  void add<T>(T instance) {
-    addFactory(
-          (e) => InstanceStoreFactory(instance),
-    );
-  }
+  /// Registers a pre‑built singleton [instance].
+  void add<T>(T instance) => addFactory((e) => InstanceStoreFactory(instance));
 
+  /// Registers a custom factory.
   void addFactory<T>(FactoryDelegate<T> factory) => registry[T] = factory(this);
 
-  void addLazy<T>(ResolverCreateDelegate<T> delegate) =>
-      addFactory(
-            (e) =>
-            LazyStoreFactory<T>(
-              resolver: this,
-              delegate: delegate,
-            ),
+  /// Registers a lazily created, cached async/sync singleton.
+  void addLazy<T>(ResolverCreateDelegate<T> delegate) => addFactory(
+        (e) => LazyStoreFactory<T>(resolver: this, delegate: delegate),
       );
 
-  void addTransient<T>(LocatorCreateDelegate<T> delegate) =>
-      addFactory(
-            (e) =>
-            TransientStoreFactory<T>(
-              locator: this,
-              delegate: delegate,
-            ),
+  /// Registers a transient factory (new instance each request).
+  void addTransient<T>(LocatorCreateDelegate<T> delegate) => addFactory(
+        (e) => TransientStoreFactory<T>(locator: this, delegate: delegate),
       );
 }
 
+/// Concrete store implementing locator + resolver behaviour.
+///
+/// {@tool snippet}
+/// ```dart
+/// final store = Store()
+///   ..add(Logger())
+///   ..addLazy<Config>((r) async => Config())
+///   ..addTransient<DateTime>((l) => DateTime.now());
+///
+/// await store.init(); // warm lazy singletons
+/// final logger = store.get<Logger>(); // sync
+/// final config = await store.resolve<Config>(); // async
+/// ```
+/// {@end-tool}
 class Store with Locator, Resolver, Register {
   @override
   Future<T> resolve<T>() async {

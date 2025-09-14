@@ -1,17 +1,30 @@
 import 'package:flutter/widgets.dart';
 import 'package:stated/stated.dart';
 
+/// Builder signature receiving the created/listened stated object.
 typedef StatedBuilderDelegate<T extends Listenable> = Widget Function(
   BuildContext context,
   T bloc,
   Widget? child,
 );
 
+/// Creation callback invoked once when no external value is provided.
 typedef StatedCreateDelegate<T extends Listenable> = T Function(
   BuildContext context,
 );
 
-/// A builder widget, meant to be used for creating and using a [Listenable] bloc
+/// Creates (or uses provided) listenable and rebuilds on its notifications.
+///
+/// {@tool snippet}
+/// Basic usage with externally provided bloc instance.
+/// ```dart
+/// final bloc = CounterBloc();
+/// StatedBuilder.value(
+///   bloc,
+///   builder: (_, b, __) => Text('Count: \\${b.value.count}'),
+/// );
+/// ```
+/// {@end-tool}
 class StatedBuilder<T extends Listenable> extends StatefulWidget {
   const StatedBuilder({
     Key? key,
@@ -31,16 +44,13 @@ class StatedBuilder<T extends Listenable> extends StatefulWidget {
         _create = null,
         super(key: key);
 
-  /// Creates the bloc. Called once, the created bloc will be persisted after.
-  /// Any used dependency values will be as of creation time.
+  /// Creates the listenable once; dependencies captured at creation time.
   final StatedCreateDelegate<T>? _create;
 
-  /// Externally-owned stated object.
-  /// Will not be disposed by the builder.
+  /// Externally-owned listenable; not disposed by this widget.
   final T? _value;
 
-  /// Delegate to build widget tree.
-  /// [StatedBuilder] will rebuild this widget tree when [Rx] emits event.
+  /// Builds subtree; invoked on each listenable change.
   final StatedBuilderDelegate<T> builder;
 
   final Widget? child;

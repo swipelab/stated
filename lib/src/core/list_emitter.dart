@@ -2,6 +2,18 @@ import 'dart:math';
 
 import 'emitter.dart';
 
+/// A `List<T>` wrapper that emits change notifications for all mutating
+/// operations. Non‑mutating queries delegate to the underlying list.
+/// A `List<T>` wrapper that emits change notifications for all mutating
+/// operations. Non‑mutating queries delegate to the underlying list.
+///
+/// {@tool snippet}
+/// ```dart
+/// final list = ListEmitter<int>();
+/// list.addListener(() => print('len: ${list.length}'));
+/// list.add(1); // prints len: 1
+/// ```
+/// {@end-tool}
 class ListEmitter<T> with Emitter implements List<T> {
   List<T> _list;
 
@@ -192,12 +204,14 @@ class ListEmitter<T> with Emitter implements List<T> {
     notifyListeners();
   }
 
+  /// Replaces entire contents with [replacement] (single notification).
   void replaceWith(Iterable<T> replacement) {
     _list.clear();
     _list.addAll(replacement);
     notifyListeners();
   }
 
+  /// Swaps underlying list reference with [list] and notifies.
   void swap(List<T> list) {
     _list = list;
     notifyListeners();

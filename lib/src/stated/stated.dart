@@ -2,9 +2,26 @@ import 'package:flutter/foundation.dart';
 import 'package:stated/src/core/core.dart';
 import 'package:stated/src/stated/stated_builder.dart';
 
-/// A Custom [ValueListenable] implementation
-/// Can be used in with [ListenableBuilder] or [StatedBuilder]
-/// The [value] is never assigned directly, but rather built using [buildState]
+/// Base class for view models exposing a lazily built immutable state value.
+/// Use with [ListenableBuilder] / [StatedBuilder]. Call [notifyListeners]
+/// with an optional mutation callback to rebuild & emit only on value change.
+///
+/// {@tool snippet}
+/// Simple counter bloc using [Stated] and consumed via [StatedBuilder].
+/// ```dart
+/// class CounterState { const CounterState(this.count); final int count; }
+/// class CounterBloc extends Stated<CounterState> {
+///   int _count = 0;
+///   void increment() => notifyListeners(() => _count++);
+///   @override CounterState buildState() => CounterState(_count);
+/// }
+///
+/// Widget build(BuildContext context) => StatedBuilder<CounterBloc>(
+///   create: (_) => CounterBloc(),
+///   builder: (_, bloc, __) => Text('Count: \\${bloc.value.count}'),
+/// );
+/// ```
+/// {@end-tool}
 abstract class Stated<T> with Emitter, Tasks implements ValueListenable<T> {
   /// The current value of the [Stated].
   T? _value;
@@ -13,12 +30,12 @@ abstract class Stated<T> with Emitter, Tasks implements ValueListenable<T> {
   /// If [value] is null, [buildState] is called to build the value.
   T get value => _value ??= buildState();
 
-  /// This methods needs to be overridden to produce [value].
+  /// Override to build the derived state snapshot.
   @protected
   T buildState();
 
-  /// After the [callback] it produces the [value].
-  /// Notifies listeners only when [value] changes.
+  /// Runs optional [callback], rebuilds state; notifies only if new value
+  /// differs (using `==`).
   @override
   @protected
   @mustCallSuper

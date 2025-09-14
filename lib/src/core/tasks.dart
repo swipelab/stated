@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:stated/stated.dart';
 
-/// Construct for the [Task] to check withing the closure if it has been cancelled while awaiting IO
+/// Token allowing async work to cooperatively check for cancellation.
 abstract class CancellationToken {
   /// if(isCancelled) throw [TaskCancelledException]
   void ensureRunning();
@@ -12,12 +12,10 @@ abstract class CancellationToken {
 }
 
 typedef TaskDelegate = Future<void> Function();
-typedef CancellableTaskDelegate = Future<void> Function(
-  CancellationToken token,
-);
-
+typedef CancellableTaskDelegate = Future<void> Function(CancellationToken token);
 typedef TypedTaskDelegate<T> = Future<T> Function();
 
+/// Thrown when a queued task is cancelled (explicitly or during disposal).
 class TaskCancelledException implements Exception {}
 
 class _Task<T> implements CancellationToken {
@@ -72,15 +70,14 @@ class _Task<T> implements CancellationToken {
 /// Output:
 ///     10 secs
 ///     1 sec
+/// Provides a FIFO async task queue (single concurrency) with cancellation.
 mixin Tasks on Dispose {
   final _queue = <_Task<void>>[];
 
   /// Enqueues [task] for execution and return the completion future
   /// Throws: [TaskCancelledException]
   @nonVirtual
-  Future<void> enqueue(TaskDelegate task) => enqueueCancellable(
-        (_) => task(),
-      );
+  Future<void> enqueue(TaskDelegate task) => enqueueCancellable((_) => task());
 
   /// Enqueues [task] for execution and return the completion future
   /// Also provides the [CancellationToken] to the closure

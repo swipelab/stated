@@ -1,6 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:stated/src/stated/stated.dart';
 
+/// Awaits an async creation of a [Stated] and rebuilds on its changes.
+///
+/// {@tool snippet}
+/// Lazy async loading of a bloc.
+/// ```dart
+/// FutureStatedBuilder<CounterState>(
+///   future: (ctx) async => CounterBloc()..increment(),
+///   builder: (_, state, __) => Text('Loaded: \\${state.count}'),
+/// );
+/// ```
+/// {@end-tool}
 class FutureStatedBuilder<T> extends StatefulWidget {
   const FutureStatedBuilder({
     required this.future,
@@ -10,7 +21,9 @@ class FutureStatedBuilder<T> extends StatefulWidget {
   }) : super(key: key);
 
   final Widget? child;
+  /// Async factory returning a [Stated] instance.
   final Future<Stated<T>> Function(BuildContext context) future;
+  /// Builder invoked with the current state value once ready.
   final Widget Function(BuildContext context, T state, Widget? child) builder;
 
   @override

@@ -1,5 +1,6 @@
 import 'package:stated/src/core/store/factory/store_factory.dart';
 
+/// Factory wrapping a pre-instantiated singleton.
 class InstanceStoreFactory<T> extends StoreFactory<T> {
   InstanceStoreFactory(T value) : _value = value;
 

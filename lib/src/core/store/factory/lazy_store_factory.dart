@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:stated/src/core/core.dart';
-import 'package:stated/src/core/store/factory/store_factory.dart';
 
+/// Lazily creates & caches an instance (supports [AsyncInit]).
 class LazyStoreFactory<T> extends StoreFactory<T> {
   LazyStoreFactory({
     required this.resolver,

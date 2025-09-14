@@ -2,17 +2,20 @@ import 'package:flutter/foundation.dart';
 
 import 'functional.dart';
 
+/// Basic disposable contract.
 abstract class Disposable {
   bool get disposed;
 
   void dispose();
 }
 
+/// Mixin that aggregates disposal callbacks. Call [addDispose] to register
+/// cleanups; they execute in reverse insertion order when [dispose] is called.
 mixin class Dispose implements Disposable {
-  /// run each on [dispose] (reversed)
+  /// Registered callbacks executed (reversed) on [dispose].
   final List<VoidCallback> _dispose = [];
 
-  _assertNotDisposed() {
+  void _assertNotDisposed() {
     assert(() {
       if (disposed) {
         throw FlutterError(
@@ -25,6 +28,7 @@ mixin class Dispose implements Disposable {
     }());
   }
 
+  /// Registers a disposal [callback]. Ignored if already disposed.
   void addDispose(VoidCallback callback) {
     _assertNotDisposed();
     if (!disposed) {
@@ -50,7 +54,6 @@ mixin class Dispose implements Disposable {
 }
 
 extension DisposableDisposerExtension on Disposable {
-  void disposeBy(Dispose disposer) {
-    disposer.addDispose(dispose);
-  }
+  /// Adds this object's [dispose] to another [Dispose] collector.
+  void disposeBy(Dispose disposer) => disposer.addDispose(dispose);
 }

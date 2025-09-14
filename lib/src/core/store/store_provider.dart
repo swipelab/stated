@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:stated/src/core/core.dart';
 
-/// This will not add a widget dependency, hence allowing for use during initState
+/// Provides a [Store] to the widget tree without creating an inherited
+/// dependency (safe for `initState` reads).
 class StoreProvider extends StatelessWidget {
   StoreProvider({
     required this.store,
@@ -12,6 +13,7 @@ class StoreProvider extends StatelessWidget {
   final Store store;
   final Widget child;
 
+  /// Finds the nearest ancestor [StoreProvider].
   static StoreProvider of(BuildContext context) {
     final result = context.findAncestorWidgetOfExactType<StoreProvider>();
     assert(result != null, 'StoreProvider not found');
@@ -23,5 +25,6 @@ class StoreProvider extends StatelessWidget {
 }
 
 extension StoreProviderExtension on BuildContext {
+  /// Shortcut for `StoreProvider.of(context).store.get<T>()`.
   T get<T>() => StoreProvider.of(this).store.get<T>();
 }
