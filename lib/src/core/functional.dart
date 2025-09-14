@@ -1,5 +1,6 @@
 /// Generic function taking no params returning [T].
 typedef Callback<T> = T Function();
+
 /// Truthy test used across selection APIs.
 typedef Predicate<T> = bool Function(T e);
 

@@ -19,8 +19,8 @@ class CounterBloc extends Stated<CounterState> {
   @override
   CounterState buildState() {
     return CounterState(
-        counter: _counter,
-      );
+      counter: _counter,
+    );
   }
 
   void increment() {

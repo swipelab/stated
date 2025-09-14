@@ -12,7 +12,8 @@ abstract class CancellationToken {
 }
 
 typedef TaskDelegate = Future<void> Function();
-typedef CancellableTaskDelegate = Future<void> Function(CancellationToken token);
+typedef CancellableTaskDelegate = Future<void> Function(
+    CancellationToken token);
 typedef TypedTaskDelegate<T> = Future<T> Function();
 
 /// Thrown when a queued task is cancelled (explicitly or during disposal).

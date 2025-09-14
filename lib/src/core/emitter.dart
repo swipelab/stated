@@ -26,8 +26,8 @@ mixin class Emitter implements Dispose, Listenable {
     _notifier.removeListener(listener);
   }
 
-  @protected
   /// Notifies all registered listeners.
+  @protected
   void notifyListeners() => _notifier.notifyListeners();
 
   @override
@@ -45,7 +45,8 @@ mixin class Emitter implements Dispose, Listenable {
 
   /// Creates a derived [LazyEmitter] recomputed when any [listenables] fire.
   /// Emits only if the newly computed value differs from the cached value.
-  static LazyEmitter<T> map<T>(List<Listenable> listenables, ValueGetter<T> fn) {
+  static LazyEmitter<T> map<T>(
+      List<Listenable> listenables, ValueGetter<T> fn) {
     final notifier = LazyEmitter<T>(fn);
 
     listenables
@@ -78,7 +79,7 @@ class ScheduledEmitter with Emitter {
   ScheduledEmitter();
 
   late final VoidCallback _scheduledNotifyListeners =
-  Emitter.scheduled(super.notifyListeners);
+      Emitter.scheduled(super.notifyListeners);
 
   @override
   void notifyListeners() => _scheduledNotifyListeners();

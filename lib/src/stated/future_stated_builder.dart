@@ -21,8 +21,10 @@ class FutureStatedBuilder<T> extends StatefulWidget {
   }) : super(key: key);
 
   final Widget? child;
+
   /// Async factory returning a [Stated] instance.
   final Future<Stated<T>> Function(BuildContext context) future;
+
   /// Builder invoked with the current state value once ready.
   final Widget Function(BuildContext context, T state, Widget? child) builder;
 
