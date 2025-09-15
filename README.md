@@ -55,7 +55,7 @@ Add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  stated: ^3.1.5 # use latest
+  stated: ^3.1.6 # use latest
 ```
 
 ### Counter with `Stated`

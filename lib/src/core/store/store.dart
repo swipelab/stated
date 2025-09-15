@@ -32,7 +32,8 @@ mixin Register on Resolver, Locator {
   /// This will enable a safe use of [Locator.get]
   Future<void> init() async {
     await Future.wait<void>(
-      registry.values.map((e) => e.future),
+      registry.values.whereType<LazyStoreFactory>().map((e) => e.future),
+      eagerError: true,
     );
   }
 
