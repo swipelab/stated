@@ -43,16 +43,12 @@ mixin class Emitter implements Dispose, Listenable {
   /// Whether there is at least one active listener.
   bool get hasListeners => _notifier.hasListeners;
 
-  /// Creates a derived [LazyEmitter] recomputed when any [listenables] fire.
+  /// Creates a derived [LazyEmitter] recomputed when any [sources] fire.
   /// Emits only if the newly computed value differs from the cached value.
   static LazyEmitter<T> map<T>(
-      List<Listenable> listenables, ValueGetter<T> fn) {
-    final notifier = LazyEmitter<T>(fn);
-
-    listenables
-        .map((e) => e.subscribe(notifier.update))
-        .forEach(notifier.addDispose);
-
+      List<Listenable> sources, ValueGetter<T> fn) {
+    final notifier = LazyEmitter(fn);
+    subscribe(sources, notifier.notifyListeners).disposeBy(notifier);
     return notifier;
   }
 

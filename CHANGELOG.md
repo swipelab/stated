@@ -1,4 +1,4 @@
-# 3.1.3
+# 3.1.4
 * Stated.setState renamed to Stated.notifyListeners
 * Stated.build renamed to Stated.buildState
 
