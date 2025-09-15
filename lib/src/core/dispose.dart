@@ -51,6 +51,14 @@ mixin class Dispose implements Disposable {
 
   @override
   bool get disposed => _disposed;
+
+  static void object(Object? object) {
+    if (object is Disposable) {
+      object.dispose();
+    } else if (object is ChangeNotifier) {
+      object.dispose();
+    }
+  }
 }
 
 extension DisposableDisposerExtension on Disposable {

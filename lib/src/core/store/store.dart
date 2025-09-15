@@ -86,4 +86,31 @@ class Store with Locator, Resolver, Register {
     }
     return entry.instance as T;
   }
+
+  T? tryGet<T>() {
+    try {
+      return get<T>();
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+class ScopedLocator with Locator {
+  ScopedLocator(this.parent);
+
+  Locator parent;
+
+  final Map<Type, StoreFactory> _registry = {};
+
+  @override
+  T get<T>() => _registry[T]?.instance ?? parent.get<T>();
+
+  void add<T>(T instance) {
+    _registry[T] = InstanceStoreFactory(instance);
+  }
+}
+
+extension LocatorExtension on Locator {
+  ScopedLocator scoped() => ScopedLocator(this);
 }

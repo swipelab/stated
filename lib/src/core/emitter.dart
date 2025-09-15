@@ -56,6 +56,22 @@ mixin class Emitter implements Dispose, Listenable {
     return notifier;
   }
 
+  /// handy way to addListener to a [ValueNotifier] and return the disposer callback
+  static VoidCallback subscribe(
+    Iterable<Listenable> sources,
+    VoidCallback callback,
+  ) {
+    final subscriptions = sources.fold(
+      <VoidCallback>[],
+      (a, e) => a..add(e.subscribe(callback)),
+    );
+    return () {
+      for (final subscription in subscriptions) {
+        subscription();
+      }
+    };
+  }
+
   /// Wraps [callback] so it is coalesced & scheduled in a microtask.
   static VoidCallback scheduled(VoidCallback callback) {
     var targetVersion = 0;
@@ -166,6 +182,12 @@ extension ListenableExtension on Listenable {
   VoidCallback subscribe(VoidCallback callback) {
     addListener(callback);
     return () => removeListener(callback);
+  }
+}
+
+extension StreamSubscriptionExtension<T> on Stream<T> {
+  VoidCallback subscribe(ValueChanged<T> callback) {
+    return listen(callback).cancel;
   }
 }
 

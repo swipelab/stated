@@ -1,5 +1,4 @@
 export 'bloc_builder.dart';
-export 'debouncer.dart';
 export 'dispose.dart';
 export 'emitter.dart';
 export 'functional.dart';

@@ -98,7 +98,6 @@ mixin Tasks on Dispose {
 
   /// Provides a future that will complete when the current queue completes
   /// Throws: [TaskCancelledException]
-  @nonVirtual
   Future<void> waitIdle() => enqueue(() async {});
 
   /// Cancels all enqueued tasks

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 import 'emitter.dart';
 
 /// A `List<T>` wrapper that emits change notifications for all mutating
@@ -14,7 +16,7 @@ import 'emitter.dart';
 /// list.add(1); // prints len: 1
 /// ```
 /// {@end-tool}
-class ListEmitter<T> with Emitter implements List<T> {
+class ListEmitter<T> with Emitter implements List<T>, ValueListenable<List<T>> {
   List<T> _list;
 
   ListEmitter([Iterable<T>? items]) : _list = List.from(items ?? <T>[]);
@@ -283,4 +285,7 @@ class ListEmitter<T> with Emitter implements List<T> {
 
   @override
   Iterable<R> whereType<R>() => _list.whereType<R>();
+
+  @override
+  List<T> get value => _list;
 }

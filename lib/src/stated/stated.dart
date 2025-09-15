@@ -39,8 +39,7 @@ abstract class Stated<T> with Emitter, Tasks implements ValueListenable<T> {
   @override
   @protected
   @mustCallSuper
-  void notifyListeners([VoidCallback? callback]) async {
-    callback?.call();
+  void notifyListeners() async {
     final oldValue = _value;
     _value = buildState();
 

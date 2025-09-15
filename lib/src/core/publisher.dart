@@ -15,7 +15,11 @@ import 'emitter.dart';
 /// ```
 /// {@end-tool}
 class Publisher<T> with Dispose {
-  final List<ValueSetter> _subscriptions = [];
+  Publisher() {
+    _subscriptions.clear.disposeBy(this);
+  }
+
+  final List<ValueSetter<T>> _subscriptions = [];
 
   /// Adds a raw subscription returning a removal callback.
   VoidCallback subscribe(ValueSetter callback) {

@@ -8,6 +8,11 @@ typedef StatedBuilderDelegate<T extends Listenable> = Widget Function(
   Widget? child,
 );
 
+typedef StatedBuilderUpdateDelegate<T extends Listenable> = void Function(
+  BuildContext context,
+  T bloc,
+);
+
 /// Creation callback invoked once when no external value is provided.
 typedef StatedCreateDelegate<T extends Listenable> = T Function(
   BuildContext context,
@@ -31,6 +36,7 @@ class StatedBuilder<T extends Listenable> extends StatefulWidget {
     required StatedCreateDelegate<T> create,
     required this.builder,
     this.child,
+    this.onUpdate,
   })  : _value = null,
         _create = create,
         super(key: key);
@@ -40,6 +46,7 @@ class StatedBuilder<T extends Listenable> extends StatefulWidget {
     Key? key,
     required this.builder,
     this.child,
+    this.onUpdate,
   })  : _value = value,
         _create = null,
         super(key: key);
@@ -54,6 +61,22 @@ class StatedBuilder<T extends Listenable> extends StatefulWidget {
   final StatedBuilderDelegate<T> builder;
 
   final Widget? child;
+
+  /// Delegate that gets called before every build.
+  /// Useful to react to dependency changes before rendering.
+  ///
+  /// In [onUpdate] it is allowed to trigger changes that cause a rebuild.
+  /// If you watch/listen to provided dependencies inside the delegate,
+  /// changes to any of those will cause [onUpdate] to be called,
+  /// followed by rebuilding the subtree via calling [builder].
+  /// It will not trigger a rebuild of the parent by itself.
+  ///
+  /// Will also be called if the parent rebuilds for any reason, so you can
+  /// also use it to react to externally controlled dependency changes.
+  /// Will be called before the actual widget build.
+  /// Can be used for explicitly watching provided values and marking the build
+  /// dirty before the actual build happens.
+  final StatedBuilderUpdateDelegate<T>? onUpdate;
 
   @override
   _StatedBuilderState<T> createState() => _StatedBuilderState();
@@ -84,6 +107,14 @@ class _StatedBuilderState<T extends Listenable>
       _initStated();
       _triggerBuild();
     }
+
+    _callOnUpdate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _callOnUpdate();
   }
 
   void _initStated() {
@@ -96,6 +127,10 @@ class _StatedBuilderState<T extends Listenable>
     if (stated is Disposable && widget._value == null) {
       (stated as Disposable).dispose();
     }
+  }
+
+  void _callOnUpdate() {
+    widget.onUpdate?.call(context, stated);
   }
 
   void _triggerBuild() => setState(() {});
