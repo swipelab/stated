@@ -45,8 +45,7 @@ mixin class Emitter implements Dispose, Listenable {
 
   /// Creates a derived [LazyEmitter] recomputed when any [sources] fire.
   /// Emits only if the newly computed value differs from the cached value.
-  static LazyEmitter<T> map<T>(
-      List<Listenable> sources, ValueGetter<T> fn) {
+  static LazyEmitter<T> map<T>(List<Listenable> sources, ValueGetter<T> fn) {
     final notifier = LazyEmitter(fn);
     subscribe(sources, notifier.notifyListeners).disposeBy(notifier);
     return notifier;
@@ -155,22 +154,19 @@ class LazyEmitter<T> with Emitter implements ValueListenable<T> {
   LazyEmitter(this.fn);
 
   final ValueGetter<T> fn;
-
-  void update() {
-    if (!hasListeners) return;
-
-    final newValue = fn();
-    if (newValue == _value) {
-      return;
-    }
-    _value = newValue;
-    notifyListeners();
-  }
-
-  T? _value;
+  T? _lastValue;
 
   @override
-  T get value => _value ??= fn();
+  T get value => _lastValue ??= fn();
+
+  @override
+  void notifyListeners() {
+    final newValue = fn();
+    if (_lastValue != newValue) {
+      _lastValue = newValue;
+      super.notifyListeners();
+    }
+  }
 }
 
 extension ListenableExtension on Listenable {
