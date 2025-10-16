@@ -1,3 +1,6 @@
+# 3.1.7
+* added dev log for UriParser when it fails to build after match
+
 # 3.1.6
 * Stated.setState renamed to Stated.notifyListeners
 * Stated.build renamed to Stated.buildState

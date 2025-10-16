@@ -1,4 +1,6 @@
-/// We might have different variants for a slug, that can be localised - canonized
+import 'dart:developer' as dev;
+
+/// We might have different variants for a slug, that can be localized - canonized
 /// We expect the [UriCanonicalConverter] to return the local domain form of the slug
 /// returns null when no match
 typedef UriCanonicalConverter = String? Function(String slug);
@@ -50,8 +52,15 @@ class UriParser<Out, State> {
             if (result != null) {
               return result;
             }
-          } catch (_) {
+          } catch (e, s) {
             // exceptions are treated as non-matches
+            dev.log('''
+UriParser.parse failed to build:
+  url: $url  
+  pattern: ${template.pattern}
+  error: $e
+  stack: $s
+''');
           }
         }
       }
@@ -64,11 +73,9 @@ typedef UriMapBuilder<Out, State> = Out? Function(UriMatch<State> match);
 
 /// Matched values & context provided to a [UriMapBuilder].
 class UriMatch<State> {
-  UriMatch(
-    this.uri,
-    this.pathParameters,
-    this.state,
-  );
+  UriMatch(this.uri,
+      this.pathParameters,
+      this.state,);
 
   final Uri uri;
   final Map<String, String> pathParameters;
@@ -79,18 +86,16 @@ class UriMatch<State> {
 
 /// Associates one (or many) path patterns with a builder.
 class UriMap<Out, State> {
-  UriMap(
-    String pattern,
-    this.builder, {
-    bool matchEnd = true,
-  }) : matchers = [PathMatcher(pattern, matchEnd: matchEnd)];
+  UriMap(String pattern,
+      this.builder, {
+        bool matchEnd = true,
+      }) : matchers = [PathMatcher(pattern, matchEnd: matchEnd)];
 
-  UriMap.many(
-    List<String> patterns,
-    this.builder, {
-    bool matchEnd = true,
-  }) : matchers =
-            patterns.map((e) => PathMatcher(e, matchEnd: matchEnd)).toList();
+  UriMap.many(List<String> patterns,
+      this.builder, {
+        bool matchEnd = true,
+      }) : matchers =
+  patterns.map((e) => PathMatcher(e, matchEnd: matchEnd)).toList();
 
   final List<PathMatcher> matchers;
   final UriMapBuilder builder;
@@ -106,8 +111,7 @@ class UriMap<Out, State> {
 /// * - anything
 /// Compiles a path pattern with named fields into a matching regex.
 class PathMatcher {
-  PathMatcher(
-    String pattern, {
+  PathMatcher(this.pattern, {
     // match end [$]
     bool matchEnd = true,
   }) {
@@ -175,12 +179,13 @@ class PathMatcher {
     }
     final map = fields.fold(
       <String, String>{},
-      (p, e) => p..[e] = match.namedGroup(e)!,
+          (p, e) => p..[e] = match.namedGroup(e)!,
     );
     return fields.every(map.containsKey) ? map : null;
   }
 
   late final RegExp pathTemplate;
+  final String pattern;
   final Set<String> fields = {};
 
   @override
