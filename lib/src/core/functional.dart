@@ -1,3 +1,5 @@
+const kEpsilon = 0.001;
+
 /// Generic function taking no params returning [T].
 typedef Callback<T> = T Function();
 

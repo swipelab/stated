@@ -1,5 +1,6 @@
 # 3.1.7
 * added dev log for UriParser when it fails to build after match
+* added UX: Measured, Pane, Dock, AnimatedDouble, AnimatedColor
 
 # 3.1.6
 * Stated.setState renamed to Stated.notifyListeners
