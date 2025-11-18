@@ -16,8 +16,6 @@ abstract class Pane with Emitter {
 
   bool get needsCompositing => renderer?.needsCompositing ?? false;
 
-  set size(Size value) => renderer!.size = value;
-
   Size get size => renderer!.size;
 
   BoxConstraints get constraints => renderer!.constraints;
@@ -28,7 +26,9 @@ abstract class Pane with Emitter {
 
   void attachPipeline(PipelineOwner owner) {
     for (final child in renderBoxes.values) {
-      child.attach(owner);
+      if (child.owner == null) {
+        child.attach(owner);
+      }
     }
   }
 
@@ -59,8 +59,7 @@ abstract class Pane with Emitter {
 
   void paint(PaintingContext context, Offset offset);
 
-  void insertRenderObjectChild(
-      PaneElement paneElement, covariant RenderBox child, Object? slot) {
+  void insertRenderObjectChild(PaneElement paneElement, covariant RenderBox child, Object? slot) {
     setupParentData(child, slot);
     renderBoxes[slot] = child;
     renderer?.adoptChild(child);
@@ -69,8 +68,7 @@ abstract class Pane with Emitter {
   void moveRenderObjectChild(PaneElement paneElement, RenderObject child,
       Object? oldSlot, Object? newSlot) {}
 
-  void removeRenderObjectChild(
-      PaneElement paneElement, RenderObject child, Object? slot) {
+  void removeRenderObjectChild(PaneElement paneElement, RenderObject child, Object? slot) {
     renderBoxes.remove(slot);
     renderer?.dropChild(child);
   }
@@ -200,8 +198,7 @@ class PaneViewport extends RenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, covariant PaneRender renderObject) {
+  void updateRenderObject(BuildContext context, covariant PaneRender renderObject) {
     renderObject.controller = controller;
   }
 }
@@ -212,8 +209,7 @@ class PaneElement extends RenderObjectElement {
   final Pane controller;
 
   @override
-  void insertRenderObjectChild(
-      covariant RenderBox child, covariant Object? slot) {
+  void insertRenderObjectChild(covariant RenderBox child, covariant Object? slot) {
     controller.insertRenderObjectChild(this, child, slot);
   }
 
@@ -224,8 +220,7 @@ class PaneElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(
-      covariant RenderObject child, covariant Object? slot) {
+  void removeRenderObjectChild(covariant RenderObject child, covariant Object? slot) {
     controller.removeRenderObjectChild(this, child, slot);
   }
 
@@ -293,9 +288,6 @@ class PaneRender extends RenderBox {
   }
 
   @override
-  set size(Size value) => super.size = value;
-
-  @override
   void adoptChild(RenderObject child) => super.adoptChild(child);
 
   @override
@@ -307,23 +299,34 @@ class PaneRender extends RenderBox {
   }
 
   @override
-  void performLayout() => controller.performLayout();
+  bool get sizedByParent => true;
 
   @override
-  void paint(PaintingContext context, Offset offset) =>
-      controller.paint(context, offset);
+  void performResize() {
+    size = constraints.biggest;
+  }
+
+  @override
+  void performLayout() {
+    if (controller.renderer == null) return;
+    controller.performLayout();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (controller.renderer == null) return;
+    controller.paint(context, offset);
+  }
 
   @override
   bool hitTestSelf(Offset position) => controller.hitTestSelf(position);
 
   @override
-  void invokeLayoutCallback<T extends Constraints>(
-          LayoutCallback<T> callback) =>
+  void invokeLayoutCallback<T extends Constraints>(LayoutCallback<T> callback) =>
       super.invokeLayoutCallback(callback);
 
   @override
-  bool hitTestChildren(
-    BoxHitTestResult result, {
+  bool hitTestChildren(BoxHitTestResult result, {
     required Offset position,
   }) =>
       controller.hitTestChildren(result, position);
