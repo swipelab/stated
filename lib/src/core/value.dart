@@ -32,8 +32,9 @@ extension ValueAnimationControllerExtension on AnimationController {
   }
 
   // creates a two way link with a ValueEmitter
-  DelegatedValue<double> link(ValueEmitter<double> other) {
-    final it = delegate();
+  Disposable link(ValueEmitter<double> other) {
+    final it = this;
+    final diposer = Dispose();
 
     void intoOther() {
       if (other.value == it.value) return;
@@ -45,9 +46,11 @@ extension ValueAnimationControllerExtension on AnimationController {
       it.value = other.value;
     }
 
-    subscribe(intoOther).disposeBy(it);
-    other.subscribe(intoIt).disposeBy(it);
+    it.subscribe(intoOther).disposeBy(diposer);
+    other.subscribe(intoIt).disposeBy(diposer);
 
-    return it;
+    intoIt();
+
+    return diposer;
   }
 }

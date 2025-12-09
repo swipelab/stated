@@ -40,6 +40,26 @@ abstract class Dock {
     );
   }
 
+  static Widget bottomRight({
+    required Widget child,
+    double? left,
+    double? right = 0,
+    double? top,
+    double? bottom = 0,
+    double? width,
+    double? height,
+  }) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      width: width,
+      height: height,
+      child: child,
+    );
+  }
+
   static Widget topRight({
     required Widget child,
     double? left,

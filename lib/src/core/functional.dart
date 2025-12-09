@@ -16,3 +16,7 @@ T self<T>(T e) => e;
 
 /// Executes a zero‑arg [Callback].
 void call<T>(Callback<T> e) => e();
+
+bool True() => true;
+
+bool False() => false;

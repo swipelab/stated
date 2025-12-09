@@ -59,7 +59,8 @@ abstract class Pane with Emitter {
 
   void paint(PaintingContext context, Offset offset);
 
-  void insertRenderObjectChild(PaneElement paneElement, covariant RenderBox child, Object? slot) {
+  void insertRenderObjectChild(
+      PaneElement paneElement, covariant RenderBox child, Object? slot) {
     setupParentData(child, slot);
     renderBoxes[slot] = child;
     renderer?.adoptChild(child);
@@ -68,7 +69,8 @@ abstract class Pane with Emitter {
   void moveRenderObjectChild(PaneElement paneElement, RenderObject child,
       Object? oldSlot, Object? newSlot) {}
 
-  void removeRenderObjectChild(PaneElement paneElement, RenderObject child, Object? slot) {
+  void removeRenderObjectChild(
+      PaneElement paneElement, RenderObject child, Object? slot) {
     renderBoxes.remove(slot);
     renderer?.dropChild(child);
   }
@@ -198,7 +200,8 @@ class PaneViewport extends RenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, covariant PaneRender renderObject) {
+  void updateRenderObject(
+      BuildContext context, covariant PaneRender renderObject) {
     renderObject.controller = controller;
   }
 }
@@ -209,7 +212,8 @@ class PaneElement extends RenderObjectElement {
   final Pane controller;
 
   @override
-  void insertRenderObjectChild(covariant RenderBox child, covariant Object? slot) {
+  void insertRenderObjectChild(
+      covariant RenderBox child, covariant Object? slot) {
     controller.insertRenderObjectChild(this, child, slot);
   }
 
@@ -220,7 +224,8 @@ class PaneElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(covariant RenderObject child, covariant Object? slot) {
+  void removeRenderObjectChild(
+      covariant RenderObject child, covariant Object? slot) {
     controller.removeRenderObjectChild(this, child, slot);
   }
 
@@ -322,11 +327,13 @@ class PaneRender extends RenderBox {
   bool hitTestSelf(Offset position) => controller.hitTestSelf(position);
 
   @override
-  void invokeLayoutCallback<T extends Constraints>(LayoutCallback<T> callback) =>
+  void invokeLayoutCallback<T extends Constraints>(
+          LayoutCallback<T> callback) =>
       super.invokeLayoutCallback(callback);
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {
+  bool hitTestChildren(
+    BoxHitTestResult result, {
     required Offset position,
   }) =>
       controller.hitTestChildren(result, position);
