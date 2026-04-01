@@ -50,12 +50,13 @@ abstract final class NaviTransitions {
   }) {
     final wide = MediaQuery.sizeOf(context).width >= breakpoint;
     final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+    final isExiting = animation.status == AnimationStatus.reverse;
     final position = Tween<Offset>(
       begin: wide ? Offset.zero : const Offset(1, 0),
       end: Offset.zero,
     ).animate(curved);
     return FadeTransition(
-      opacity: wide ? curved : const AlwaysStoppedAnimation(1.0),
+      opacity: wide && !isExiting ? curved : const AlwaysStoppedAnimation(1.0),
       child: SlideTransition(position: position, child: child),
     );
   }

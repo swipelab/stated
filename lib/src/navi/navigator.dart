@@ -82,17 +82,28 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
       }
     }
 
-    // Reorder to match newPages (non-removing entries only).
+    // Reorder to match newPages, keeping removing entries in their
+    // original relative position (so an exiting child page stays
+    // above its parent, not behind it).
     final ordered = <NavEntry>[];
-    final removing = _entries.where((e) => e.removing).toList();
     for (final page in newPages) {
-      final entry = _entries.firstWhere((e) => e.page == page && !e.removing);
-      ordered.add(entry);
+      ordered.add(_entries.firstWhere((e) => e.page == page && !e.removing));
+    }
+    final result = <NavEntry>[];
+    int oi = 0;
+    for (final entry in _entries) {
+      if (entry.removing) {
+        result.add(entry);
+      } else if (oi < ordered.length) {
+        result.add(ordered[oi++]);
+      }
+    }
+    while (oi < ordered.length) {
+      result.add(ordered[oi++]);
     }
     _entries
       ..clear()
-      ..addAll(removing)
-      ..addAll(ordered);
+      ..addAll(result);
 
     // Trigger hero flights.
     if (heroSnapshot.isNotEmpty) {
