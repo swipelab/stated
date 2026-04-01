@@ -3,38 +3,38 @@ import 'package:flutter/services.dart' show PredictiveBackEvent;
 
 import 'package:stated/src/core/functional.dart';
 import 'package:stated/src/navi/hero.dart';
-import 'package:stated/src/navi/page.dart';
+import 'package:stated/src/navi/screen.dart';
 
-/// A purely declarative page stack with animated transitions.
+/// A purely declarative screen stack with animated transitions.
 ///
-/// Receives a list of [NaviPage]s and renders them as a [Stack].
-/// When the list changes, new pages animate in and removed pages
+/// Receives a list of [Screen]s and renders them as a [Stack].
+/// When the list changes, new screens animate in and removed screens
 /// animate out. No [Route], no [ModalBarrier], no imperative pop.
-class NaviStack extends StatefulWidget {
-  const NaviStack({
+class ScreenStack extends StatefulWidget {
+  const ScreenStack({
     super.key,
     required this.pages,
     this.onRemoved,
   });
 
-  final List<NaviPage> pages;
-  final ValueChanged<NaviPage>? onRemoved;
+  final List<Screen> pages;
+  final ValueChanged<Screen>? onRemoved;
 
   @override
-  State<NaviStack> createState() => NaviStackState();
+  State<ScreenStack> createState() => ScreenStackState();
 
-  static NaviStackState of(BuildContext context) {
-    return context.findAncestorStateOfType<NaviStackState>()!;
+  static ScreenStackState of(BuildContext context) {
+    return context.findAncestorStateOfType<ScreenStackState>()!;
   }
 
-  static NaviStackState? maybeOf(BuildContext context) {
-    return context.findAncestorStateOfType<NaviStackState>();
+  static ScreenStackState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<ScreenStackState>();
   }
 }
 
-class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
-  final List<NavEntry> _entries = [];
-  final NaviHeroController heroController = NaviHeroController();
+class ScreenStackState extends State<ScreenStack> with TickerProviderStateMixin {
+  final List<ScreenSlot> _entries = [];
+  final ScreenHeroController heroController = ScreenHeroController();
 
   bool _canPop = false;
 
@@ -57,17 +57,17 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(NaviStack oldWidget) {
+  void didUpdateWidget(ScreenStack oldWidget) {
     super.didUpdateWidget(oldWidget);
     _diffPages(oldWidget.pages, widget.pages);
   }
 
-  void _diffPages(List<NaviPage> oldPages, List<NaviPage> newPages) {
+  void _diffPages(List<Screen> oldPages, List<Screen> newPages) {
     final oldSet = oldPages.toSet();
     final newSet = newPages.toSet();
     final heroSnapshot = heroController.snapshot();
 
-    // Pages removed: start exit animation.
+    // Screens removed: start exit animation.
     for (final entry in _entries.toList()) {
       if (entry.removing) continue;
       if (!newSet.contains(entry.page)) {
@@ -75,7 +75,7 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
       }
     }
 
-    // Pages added: create entry with enter animation.
+    // Screens added: create entry with enter animation.
     for (final page in newPages) {
       if (!oldSet.contains(page)) {
         _entries.add(_createEntry(page, animated: true));
@@ -83,13 +83,13 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
     }
 
     // Reorder to match newPages, keeping removing entries in their
-    // original relative position (so an exiting child page stays
+    // original relative position (so an exiting child screen stays
     // above its parent, not behind it).
-    final ordered = <NavEntry>[];
+    final ordered = <ScreenSlot>[];
     for (final page in newPages) {
       ordered.add(_entries.firstWhere((e) => e.page == page && !e.removing));
     }
-    final result = <NavEntry>[];
+    final result = <ScreenSlot>[];
     int oi = 0;
     for (final entry in _entries) {
       if (entry.removing) {
@@ -125,18 +125,18 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  NavEntry _createEntry(NaviPage page, {required bool animated}) {
+  ScreenSlot _createEntry(Screen page, {required bool animated}) {
     final controller = AnimationController(
       vsync: this,
       duration: page.transitionDuration,
       value: animated ? 0.0 : 1.0,
     );
-    final entry = NavEntry(page: page, controller: controller);
+    final entry = ScreenSlot(page: page, controller: controller);
     if (animated) controller.forward();
     return entry;
   }
 
-  void _removeEntry(NavEntry entry) {
+  void _removeEntry(ScreenSlot entry) {
     entry.removing = true;
     entry.controller.reverse().then((_) {
       if (!mounted) return;
@@ -156,7 +156,7 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  NavEntry? get _topEntry => _entries.lastWhereOrNull((e) => !e.removing);
+  ScreenSlot? get _topEntry => _entries.lastWhereOrNull((e) => !e.removing);
 
   @override
   Widget build(BuildContext context) {
@@ -176,40 +176,35 @@ class NaviStackState extends State<NaviStack> with TickerProviderStateMixin {
   }
 }
 
-class NavEntry {
-  NavEntry({required this.page, required this.controller});
+/// A slot in the [ScreenStack] that holds a [Screen] and manages its
+/// transition animation.
+class ScreenSlot {
+  ScreenSlot({required this.page, required this.controller});
 
-  final NaviPage page;
+  final Screen page;
   final AnimationController controller;
   final key = GlobalKey();
   final contentKey = GlobalKey();
   bool removing = false;
-}
 
-class NavEntryWidget extends StatelessWidget {
-  const NavEntryWidget({required this.entry});
-
-  final NavEntry entry;
-
-  @override
   Widget build(BuildContext context) {
-    final child = entry.page is Listenable
+    final child = page is Listenable
         ? ListenableBuilder(
-            listenable: entry.page as Listenable,
-            builder: (context, _) => entry.page.buildPresenter(context),
+            listenable: page as Listenable,
+            builder: (context, _) => page.buildPresenter(context),
           )
-        : entry.page.buildPresenter(context);
+        : page.buildPresenter(context);
 
     return AnimatedBuilder(
-      animation: entry.controller,
+      animation: controller,
       child: child,
       builder: (context, child) =>
-          entry.page.buildTransition(context, entry.controller, child!),
+          page.buildTransition(context, controller, child!),
     );
   }
 }
 
-/// Wraps the top page entry and handles Android predictive back gestures.
+/// Wraps the top screen entry and handles Android predictive back gestures.
 /// Drives the entry's [AnimationController] in response to gesture progress.
 class PredictiveBackHandler extends StatefulWidget {
   const PredictiveBackHandler({
@@ -219,7 +214,7 @@ class PredictiveBackHandler extends StatefulWidget {
     required this.onPop,
   });
 
-  final NavEntry entry;
+  final ScreenSlot entry;
   final bool enabled;
   final VoidCallback onPop;
 
@@ -311,7 +306,7 @@ class PredictiveBackHandlerState extends State<PredictiveBackHandler>
     return Stack(
       fit: StackFit.passthrough,
       children: [
-        NavEntryWidget(entry: widget.entry),
+        widget.entry.build(context),
         // Left edge swipe strip — sits on top to catch horizontal drags
         // without competing with the page's scroll views.
         if (_isIOSLike && widget.enabled && widget.entry.page.canSwipeBack)

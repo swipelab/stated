@@ -1,50 +1,71 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:stated/src/core/dispose.dart';
 import 'package:stated/src/core/emitter.dart';
+import 'package:stated/src/core/functional.dart';
 import 'package:stated/src/core/list_emitter.dart';
-import 'package:stated/src/navi/navigator.dart';
-import 'package:stated/src/navi/page.dart';
+import 'package:stated/src/core/store/store.dart';
+import 'package:stated/src/core/uri.dart';
+import 'package:stated/src/navi/screen_stack.dart';
+import 'package:stated/src/navi/screen.dart';
 
-/// Generic stack-based page router.
+/// Generic stack-based screen router.
 ///
-/// Manages a [home] page and a [stack] of pushed pages, rendering them
-/// via [NaviStack]. Subclass and override [pages] to add guards
-/// (e.g. auth checks) before the default page list.
-class NaviRouter extends BackButtonDispatcher with Dispose, PageHost {
-  NaviRouter({required this.home, this.routeParser});
+/// Manages a [home] screen and a [stack] of pushed screens, rendering them
+/// via [ScreenStack]. Subclass and override [pages] to add guards
+/// (e.g. auth checks) before the default screen list.
+class StatedRouter extends BackButtonDispatcher with Dispose, ScreenShell {
+  StatedRouter({required this.home, this.routeParser});
 
-  final NaviPage home;
+  final Screen home;
   final RouteInformationParser<Object>? routeParser;
-  late final stack = ListEmitter<NaviPage>()..disposeBy(this);
-  late final delegate = NaviRouterDelegate(router: this);
-  late final backDispatcher = NaviRouterBack(router: this);
+  late final stack = ListEmitter<Screen>()..disposeBy(this);
+  late final delegate = StatedRouterDelegate(router: this);
+  late final backDispatcher = StatedRouterBack(router: this);
 
-  NaviPage? get currentConfiguration => stack.lastOrNull ?? home;
+  Screen? get currentConfiguration => stack.lastOrNull ?? home;
 
-  Iterable<NaviPage> _expand(NaviPage page) sync* {
+  Iterable<Screen> _expand(Screen page) sync* {
     yield page;
-    if (page is PageHost) {
-      for (final child in (page as PageHost).expandedPages) {
-        if (!child.popped) yield child;
+    if (page is ScreenShell) {
+      for (final screen in (page as ScreenShell).pages) {
+        if (!screen.popped) yield screen;
       }
     }
   }
 
-  List<NaviPage> get pages => [
+  List<Screen> get pages => [
     ..._expand(home),
     for (final page in stack) ..._expand(page),
   ];
 
   late final _overlayEntry = OverlayEntry(builder: _buildContent);
 
+  bool get canPop {
+    if (stack.isNotEmpty) return true;
+    if (home is ScreenShell) {
+      for (final screen in (home as ScreenShell).pages) {
+        if (!screen.popped) return true;
+      }
+    }
+    return false;
+  }
+
+  void _updateSystemBack() {
+    SystemNavigator.setFrameworkHandlesBack(canPop);
+  }
+
   Widget _buildContent(BuildContext context) {
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
       child: Material(
-        child: NaviStack(pages: pages),
+        child: NotificationListener<NavigationNotification>(
+          onNotification: (_) => true, // absorb — router manages system back directly
+          child: ScreenStack(pages: pages),
+        ),
       ),
     );
   }
@@ -58,14 +79,14 @@ class NaviRouter extends BackButtonDispatcher with Dispose, PageHost {
     while (stack.isNotEmpty) {
       stack.last.pop();
     }
-    if (home is PageHost) {
-      for (final child in (home as PageHost).expandedPages.toList()) {
-        child.pop();
+    if (home is ScreenShell) {
+      for (final screen in (home as ScreenShell).pages.toList()) {
+        screen.pop();
       }
     }
   }
 
-  Future<T?> push<T>(NaviPage<T> page) async {
+  Future<T?> push<T>(Screen<T> page) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (home == page) {
       popAll();
@@ -73,12 +94,12 @@ class NaviRouter extends BackButtonDispatcher with Dispose, PageHost {
     }
 
     final top = stack.lastOrNull ?? home;
-    if (top case final PageHost host when host.acceptChild(page)) {
+    if (top case final ScreenShell host when host.accept(page)) {
       page.detach = () {
         delegate.notifyListeners();
       };
       page.removed = () {
-        host.removeChild(page);
+        host.remove(page);
         Dispose.object(page);
       };
       page.onPush();
@@ -99,7 +120,7 @@ class NaviRouter extends BackButtonDispatcher with Dispose, PageHost {
     return page.future;
   }
 
-  Future<void> setNewRoutePath(NaviPage? configuration) {
+  Future<void> setNewRoutePath(Screen? configuration) {
     if (configuration == null || configuration == home) {
       popAll();
       return SynchronousFuture(null);
@@ -108,10 +129,10 @@ class NaviRouter extends BackButtonDispatcher with Dispose, PageHost {
   }
 }
 
-class NaviRouterBack extends RootBackButtonDispatcher {
-  NaviRouterBack({required this.router});
+class StatedRouterBack extends RootBackButtonDispatcher {
+  StatedRouterBack({required this.router});
 
-  final NaviRouter router;
+  final StatedRouter router;
 
   @override
   Future<bool> didPopRoute() async {
@@ -128,10 +149,10 @@ class NaviRouterBack extends RootBackButtonDispatcher {
   }
 }
 
-class NaviRouterDelegate extends RouterDelegate<NaviPage> with Emitter {
-  NaviRouterDelegate({required this.router});
+class StatedRouterDelegate extends RouterDelegate<Screen> with Emitter {
+  StatedRouterDelegate({required this.router});
 
-  final NaviRouter router;
+  final StatedRouter router;
 
   @override
   Widget build(BuildContext context) => router.build(context);
@@ -140,68 +161,135 @@ class NaviRouterDelegate extends RouterDelegate<NaviPage> with Emitter {
   Future<bool> popRoute() => router.backDispatcher.didPopRoute();
 
   @override
-  Future<void> setNewRoutePath(NaviPage? configuration) async =>
+  Future<void> setNewRoutePath(Screen? configuration) async =>
       router.setNewRoutePath(configuration);
 
   @override
-  NaviPage? get currentConfiguration => router.currentConfiguration;
+  void notifyListeners() {
+    super.notifyListeners();
+    router._updateSystemBack();
+  }
 
   @override
-  void notifyListeners() => super.notifyListeners();
+  Screen? get currentConfiguration => router.currentConfiguration;
 }
 
-/// Mixin for pages that can host child pages (e.g. a tab host showing
-/// a detail page alongside the tab bar).
-mixin PageHost {
-  bool acceptChild(NaviPage child) => false;
-  void removeChild(NaviPage child) {}
-  Iterable<NaviPage> get expandedPages => const [];
+/// Mixin for screens that can host other screens (e.g. a tab host showing
+/// a detail screen alongside the tab bar).
+///
+/// When a screen is pushed, the router asks the current top screen's shell
+/// whether to [accept] it. If accepted, the screen is managed by the shell
+/// instead of the router's main stack.
+mixin ScreenShell {
+  /// Whether this shell wants to own [screen]. Return `true` to intercept
+  /// the push — the screen will not go onto the router stack.
+  bool accept(Screen screen) => false;
+
+  /// Called after a hosted screen's exit animation completes.
+  void remove(Screen screen) {}
+
+  /// The screens currently hosted by this shell. The router flattens
+  /// these into the [ScreenStack] alongside the main stack.
+  Iterable<Screen> get pages => const [];
 }
 
-/// Mixin for pages that support deep-linking via a URL.
-mixin PageRestore<T> on NaviPage<T> {
+/// Mixin for screens that support deep-linking via a URL.
+mixin Deeplink<T> on Screen<T> {
   String get restoreUrl;
 }
 
-/// A [MaterialApp] wired to a [NaviRouter].
-class NaviApp extends StatelessWidget {
-  const NaviApp({
+/// A [RouteInformationParser] that converts URIs into [Screen]s
+/// using a [UriParser], and restores URLs from [Deeplink] screens.
+class ScreenRouteParser extends RouteInformationParser<Object> {
+  ScreenRouteParser({required this.parser, this.normalize});
+
+  final UriParser<Screen, dynamic> parser;
+  final Uri Function(Uri)? normalize;
+
+  Screen? parse(Uri? uri) {
+    if (uri == null) return null;
+    if (normalize != null) uri = normalize!(uri);
+    return parser.parse(uri, null);
+  }
+
+  @override
+  Future<Object> parseRouteInformation(RouteInformation routeInformation) async {
+    return parse(routeInformation.uri) as Object;
+  }
+
+  @override
+  RouteInformation? restoreRouteInformation(Object configuration) {
+    return (configuration is Deeplink ? configuration.restoreUrl : null)
+        ?.pipe(Uri.tryParse)
+        ?.pipe((uri) => RouteInformation(uri: uri));
+  }
+}
+
+/// The root widget for a stated app.
+///
+/// Resolves a [StatedRouter] from the [Store] and sets up theming,
+/// localization, scroll behavior, and back-button dispatching —
+/// without pulling in Flutter's [Navigator] or [MaterialApp].
+class StatedApp extends StatelessWidget {
+  const StatedApp({
     super.key,
-    required this.router,
+    required this.store,
     this.title = '',
     this.theme,
     this.debugShowCheckedModeBanner = true,
     this.localizationsDelegates,
     this.supportedLocales = const [Locale('en')],
-    this.scaffoldMessengerKey,
     this.scrollBehavior,
-    this.builder,
   });
 
-  final NaviRouter router;
+  final Store store;
   final String title;
   final ThemeData? theme;
   final bool debugShowCheckedModeBanner;
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final Iterable<Locale> supportedLocales;
-  final GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
   final ScrollBehavior? scrollBehavior;
-  final TransitionBuilder? builder;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    final router = store.get<StatedRouter>();
+    final data = theme ?? ThemeData();
+
+    return Title(
       title: title,
-      theme: theme,
-      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-      localizationsDelegates: localizationsDelegates,
-      supportedLocales: supportedLocales,
-      routeInformationParser: router.routeParser,
-      routerDelegate: router.delegate,
-      backButtonDispatcher: router.backDispatcher,
-      scaffoldMessengerKey: scaffoldMessengerKey,
-      scrollBehavior: scrollBehavior,
-      builder: builder,
+      color: data.primaryColor,
+      child: MediaQuery.fromView(
+        view: View.of(context),
+        child: Localizations(
+          locale: supportedLocales.first,
+          delegates: [
+            ...?localizationsDelegates,
+            DefaultMaterialLocalizations.delegate,
+            DefaultWidgetsLocalizations.delegate,
+          ],
+          child: AnimatedTheme(
+            data: data,
+            child: ScrollConfiguration(
+              behavior: scrollBehavior ?? const MaterialScrollBehavior(),
+              child: ScaffoldMessenger(
+                child: Shortcuts(
+                  shortcuts: WidgetsApp.defaultShortcuts,
+                  child: Actions(
+                    actions: WidgetsApp.defaultActions,
+                    child: DefaultTextEditingShortcuts(
+                      child: Router(
+                        routeInformationParser: router.routeParser,
+                        routerDelegate: router.delegate,
+                        backButtonDispatcher: router.backDispatcher,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 
 import 'package:stated/src/navi/transitions.dart';
 
-/// A page that can be rendered by [NaviStack] and managed by [NaviRouter].
+/// A full-screen destination that can be pushed onto a [ScreenStack]
+/// and managed by a [StatedRouter].
 ///
 /// Provides its own content via [buildPresenter] and controls
 /// how it transitions in/out via [buildTransition].
-mixin NaviPage<T> {
+mixin Screen<T> {
   // === rendering ===
 
   /// Build the page content.
@@ -22,7 +23,7 @@ mixin NaviPage<T> {
     BuildContext context,
     Animation<double> animation,
     Widget child,
-  ) => NaviTransitions.platformSlide(context, animation, child);
+  ) => ScreenTransitions.platformSlide(context, animation, child);
 
   /// Duration of the enter/exit animation.
   Duration get transitionDuration => const Duration(milliseconds: 300);

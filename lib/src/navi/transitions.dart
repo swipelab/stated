@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Built-in transition builders for use in [NaviPage.buildTransition].
-abstract final class NaviTransitions {
+/// Built-in transition builders for use in [Screen.buildTransition].
+abstract final class ScreenTransitions {
   /// Slide from right (push) / slide to right (pop).
   static Widget platformSlide(
     BuildContext context,

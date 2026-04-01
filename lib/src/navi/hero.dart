@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// A shared-element widget that animates between two positions
-/// when the [NaviStack] pushes or pops a page.
+/// when the [ScreenStack] pushes or pops a screen.
 ///
-/// Place [NaviHero] widgets with the same [tag] on different pages.
+/// Place [ScreenHero] widgets with the same [tag] on different screens.
 /// When a transition occurs, the hero "flies" from the old position
 /// to the new one inside an [Overlay].
-class NaviHero extends StatefulWidget {
-  const NaviHero({
+class ScreenHero extends StatefulWidget {
+  const ScreenHero({
     super.key,
     required this.tag,
     required this.child,
@@ -24,10 +24,10 @@ class NaviHero extends StatefulWidget {
   final CreateRectTween? createRectTween;
 
   @override
-  State<NaviHero> createState() => NaviHeroState();
+  State<ScreenHero> createState() => ScreenHeroState();
 }
 
-class NaviHeroState extends State<NaviHero> {
+class ScreenHeroState extends State<ScreenHero> {
   Size? _placeholderSize;
 
   void startFlight() {
@@ -59,12 +59,12 @@ class NaviHeroState extends State<NaviHero> {
   }
 }
 
-/// Registry + flight controller, owned by [NaviStackState].
-class NaviHeroController {
-  final Map<Object, NaviHeroState> _heroes = {};
+/// Registry + flight controller, owned by [ScreenStackState].
+class ScreenHeroController {
+  final Map<Object, ScreenHeroState> _heroes = {};
 
-  void register(Object tag, NaviHeroState state) => _heroes[tag] = state;
-  void unregister(Object tag, NaviHeroState state) {
+  void register(Object tag, ScreenHeroState state) => _heroes[tag] = state;
+  void unregister(Object tag, ScreenHeroState state) {
     if (_heroes[tag] == state) _heroes.remove(tag);
   }
 
@@ -106,7 +106,7 @@ class NaviHeroController {
 
   void _startFlight({
     required Object tag,
-    required NaviHeroState hero,
+    required ScreenHeroState hero,
     required Rect fromRect,
     required Rect toRect,
     required Animation<double> animation,
