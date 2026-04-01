@@ -207,9 +207,11 @@ class PaneViewport extends RenderObjectWidget {
 }
 
 class PaneElement extends RenderObjectElement {
-  PaneElement(super.widget, this.controller);
+  PaneElement(super.widget, this._controller);
 
-  final Pane controller;
+  Pane _controller;
+
+  Pane get controller => _controller;
 
   @override
   void insertRenderObjectChild(
@@ -249,9 +251,15 @@ class PaneElement extends RenderObjectElement {
   }
 
   @override
-  void update(covariant RenderObjectWidget newWidget) {
+  void update(covariant PaneViewport newWidget) {
+    final oldController = _controller;
+    final newController = newWidget.controller;
+    if (oldController != newController) {
+      oldController.unmountElement();
+      _controller = newController;
+      newController.mountElement(null, null, this);
+    }
     super.update(newWidget);
-    renderObject.markNeedsLayout();
   }
 
   @override
@@ -273,23 +281,39 @@ class PaneElement extends RenderObjectElement {
 
 class PaneRender extends RenderBox {
   PaneRender({
-    required this.controller,
-  });
+    required Pane controller,
+  }) : _controller = controller;
 
-  Pane controller;
+  Pane _controller;
+
+  Pane get controller => _controller;
+
+  set controller(Pane value) {
+    if (_controller == value) return;
+    if (attached) {
+      _controller.detachPipeline();
+      _controller.renderer = null;
+    }
+    _controller = value;
+    if (attached) {
+      _controller.attachPipeline(owner!);
+      _controller.renderer = this;
+      markNeedsLayout();
+    }
+  }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    controller.attachPipeline(owner);
-    controller.renderer = this;
+    _controller.attachPipeline(owner);
+    _controller.renderer = this;
   }
 
   @override
   void detach() {
     super.detach();
-    controller.detachPipeline();
-    controller.renderer = null;
+    _controller.detachPipeline();
+    _controller.renderer = null;
   }
 
   @override

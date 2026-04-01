@@ -20,3 +20,13 @@ void call<T>(Callback<T> e) => e();
 bool True() => true;
 
 bool False() => false;
+
+extension IterableLastWhereOrNull<T> on Iterable<T> {
+  T? lastWhereOrNull(bool Function(T) test) {
+    T? result;
+    for (final element in this) {
+      if (test(element)) result = element;
+    }
+    return result;
+  }
+}
