@@ -161,17 +161,38 @@ class ScreenStackState extends State<ScreenStack> with TickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     final top = _topEntry;
-    return Stack(
-      fit: StackFit.passthrough,
-      children: [
-        for (final entry in _entries)
-          PredictiveBackHandler(
-            key: entry.key,
-            entry: entry,
-            enabled: entry == top && _canPop,
-            onPop: () => entry.page.pop(),
-          ),
-      ],
+    return Actions(
+      actions: {
+        DismissIntent: CallbackAction<DismissIntent>(
+          onInvoke: (_) {
+            final focus = FocusManager.instance.primaryFocus;
+            if (focus != null && focus.context != null &&
+                focus.context!.findAncestorWidgetOfExactType<EditableText>() != null) {
+              focus.unfocus();
+              return null;
+            }
+            final top = _topEntry;
+            if (top != null && top.page.isModal) {
+              top.page.pop();
+            }
+            return null;
+          },
+        ),
+      },
+      child: FocusScope(
+        child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          for (final entry in _entries)
+            PredictiveBackHandler(
+              key: entry.key,
+              entry: entry,
+              enabled: entry == top && _canPop,
+              onPop: () => entry.page.pop(),
+            ),
+        ],
+      ),
+      ),
     );
   }
 }

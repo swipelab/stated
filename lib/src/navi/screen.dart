@@ -28,6 +28,9 @@ mixin Screen<T> {
   /// Duration of the enter/exit animation.
   Duration get transitionDuration => const Duration(milliseconds: 300);
 
+  /// Whether this screen is a modal (dialog, bottom sheet, etc.).
+  bool get isModal => false;
+
   /// Whether the iOS edge-swipe gesture should be enabled for this page.
   /// Set to `false` for bottom sheets and overlays that dismiss differently.
   bool get canSwipeBack => true;
