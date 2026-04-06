@@ -233,26 +233,27 @@ class ScreenRouteParser extends RouteInformationParser<Object> {
 class StatedApp extends StatelessWidget {
   const StatedApp({
     super.key,
-    required this.store,
+    required this.router,
     this.title = '',
     this.theme,
     this.debugShowCheckedModeBanner = true,
     this.localizationsDelegates,
     this.supportedLocales = const [Locale('en')],
     this.scrollBehavior,
+    this.overlayKey,
   });
 
-  final Store store;
+  final StatedRouter router;
   final String title;
   final ThemeData? theme;
   final bool debugShowCheckedModeBanner;
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final Iterable<Locale> supportedLocales;
   final ScrollBehavior? scrollBehavior;
+  final GlobalKey<OverlayState>? overlayKey;
 
   @override
   Widget build(BuildContext context) {
-    final router = store.get<StatedRouter>();
     final data = theme ?? ThemeData();
 
     return Title(
@@ -271,20 +272,25 @@ class StatedApp extends StatelessWidget {
             data: data,
             child: ScrollConfiguration(
               behavior: scrollBehavior ?? const MaterialScrollBehavior(),
-              child: ScaffoldMessenger(
-                child: Shortcuts(
-                  shortcuts: WidgetsApp.defaultShortcuts,
-                  child: Actions(
-                    actions: WidgetsApp.defaultActions,
-                    child: DefaultTextEditingShortcuts(
-                      child: Router(
-                        routeInformationParser: router.routeParser,
-                        routerDelegate: router.delegate,
-                        backButtonDispatcher: router.backDispatcher,
+              child: Overlay(
+                key: overlayKey,
+                initialEntries: [
+                  OverlayEntry(
+                    builder: (_) => Shortcuts(
+                      shortcuts: WidgetsApp.defaultShortcuts,
+                      child: Actions(
+                        actions: WidgetsApp.defaultActions,
+                        child: DefaultTextEditingShortcuts(
+                          child: Router(
+                            routeInformationParser: router.routeParser,
+                            routerDelegate: router.delegate,
+                            backButtonDispatcher: router.backDispatcher,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
